@@ -2686,6 +2686,53 @@ header h1 {
   .card.market .mblock {
     margin: var(--space-3) 0;
   }
+
+  .bracket {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-3);
+    margin: 0;
+    padding: 0 0 var(--space-3);
+    overflow: visible;
+    overscroll-behavior-x: auto;
+    scroll-snap-type: none;
+  }
+
+  .bsection {
+    margin: var(--space-3) 0 var(--space-5);
+  }
+
+  .bcol {
+    min-width: 0;
+    width: 100%;
+    scroll-snap-align: none;
+  }
+
+  .bcol:not(:last-child)::after,
+  .bcol:not(:last-child) .bmatch::after,
+  .bcol:not(:first-child) .bmatch::before {
+    display: none;
+  }
+
+  .bmatch {
+    min-height: 72px;
+    margin-bottom: var(--space-2);
+  }
+
+  .bfinalblock {
+    width: 100%;
+    margin: var(--space-4) 0;
+    padding: var(--space-4) var(--space-3);
+  }
+
+  .bfinals {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .bfinals > div {
+    max-width: none;
+  }
 }
 
 @media (max-width: 520px) {
