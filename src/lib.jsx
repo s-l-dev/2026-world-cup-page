@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react'
 
 let _cache = null
+let _teams = {}
+export const nm = code => _teams[code] || code   // 三字母代码 -> 全名
 export function useData() {
   const [data, setData] = useState(_cache)
   useEffect(() => {
     if (_cache) return
-    fetch('/data.json').then(r => r.json()).then(d => { _cache = d; setData(d) })
+    fetch('/data.json').then(r => r.json()).then(d => { _cache = d; _teams = d.teams || {}; setData(d) })
   }, [])
   return data
 }
@@ -53,7 +55,7 @@ export function ShotMap({ shots, home, away }) {
   if (!shots || !shots.length) return null
   return (
     <div className="block">
-      <div className="lbl">射门质量图 <span className="dim">蓝={home} 橙={away}，圈∝xG，实心=射正</span></div>
+      <div className="lbl">射门质量图 <span className="dim">蓝={nm(home)} 橙={nm(away)}，圈∝xG，实心=射正</span></div>
       <svg viewBox="0 0 100 64" className="pitch">
         <rect x="0" y="0" width="100" height="64" fill="#0b2616" stroke="#2f6f44" />
         <line x1="50" y1="0" x2="50" y2="64" stroke="#2f6f44" />
@@ -92,7 +94,7 @@ export function Momentum({ values }) {
 export function Zones({ zones, home, away }) {
   if (!zones || (!zones.home && !zones.away)) return null
   const bar = (z, tid) => z ? (
-    <div className="zrow"><span className="ztid">{tid}</span>
+    <div className="zrow"><span className="ztid">{nm(tid)}</span>
       <div className="zbar">
         <i style={{ width: `${z.left}%`, background: '#1f6f3f' }}>{z.left} 左</i>
         <i style={{ width: `${z.center}%`, background: '#30536f' }}>{z.center} 中</i>

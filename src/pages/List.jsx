@@ -1,20 +1,20 @@
 import React, { useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
-import { useData, pct, bj, bjTime, bjDate } from '../lib.jsx'
+import { useData, pct, bj, bjTime, bjDate, nm } from '../lib.jsx'
 
 const TABS = [['standings', '📊 小组积分'], ['group', '📅 小组赛程'], ['ko', '🏆 淘汰赛'], ['bracket', '🗺️ 晋级图']]
 
 function MatchRow({ m }) {
+  const pr = m.prediction
   return (
     <Link to={`/m/${m.id}`} className="mrow">
       <div className="mtime">{bjTime(m.kickoff)}{m.group && <span className="mg">{m.group}</span>}</div>
-      <div className="mteams">{m.home} <span className="dim">vs</span> {m.away}</div>
+      <div className="mteams">{nm(m.home)} <span className="dim">vs</span> {nm(m.away)}</div>
       <div className="mright">
-        {m.finished
-          ? <span className="score">{m.result.h}-{m.result.a}</span>
-          : (m.prediction
-            ? <span className="pred">{pct(m.prediction.x12.home)}/{pct(m.prediction.x12.draw)}/{pct(m.prediction.x12.away)} · {m.prediction.topScores[0].score}</span>
-            : <span className="dim">球队待定</span>)}
+        {m.finished && <span className="score">{m.result.h}-{m.result.a}</span>}
+        {pr
+          ? <span className="pred">{pct(pr.x12.home)}/{pct(pr.x12.draw)}/{pct(pr.x12.away)}{!m.finished && ` · ${pr.topScores[0].score}`}</span>
+          : (!m.finished && <span className="dim">球队待定</span>)}
         <span className={`badge ${m.finished ? 'fin' : 'up'}`}>{m.finished ? '完赛' : '未赛'}</span>
       </div>
     </Link>
@@ -38,8 +38,8 @@ function ByDate({ matches }) {
 function BCard({ m }) {
   return (
     <Link to={`/m/${m.id}`} className="bmatch">
-      <div className="bteam">{m.home}{m.result && <b>{m.result.h}</b>}</div>
-      <div className="bteam">{m.away}{m.result && <b>{m.result.a}</b>}</div>
+      <div className="bteam">{nm(m.home)}{m.result && <b>{m.result.h}</b>}</div>
+      <div className="bteam">{nm(m.away)}{m.result && <b>{m.result.a}</b>}</div>
       <div className="bdate">{bjDate(m.kickoff || m.date + 'T00:00:00Z').slice(5)}</div>
     </Link>
   )
@@ -73,11 +73,13 @@ export default function List() {
   const data = useData()
   const [tab, setTab] = useState('standings')
   const [g, setG] = useState('')
+  const [st, setSt] = useState('')
   if (!data) return <div className="wrap"><div className="loading">加载数据…</div></div>
   const matches = data.matches
   const fin = matches.filter(m => m.finished).length
   const groups = [...new Set(matches.filter(m => m.group).map(m => m.group))].sort()
-  const groupMatches = matches.filter(m => m.stage === 'group_stage' && (!g || m.group === g))
+  const groupMatches = matches.filter(m => m.stage === 'group_stage' && (!g || m.group === g)
+    && (!st || (st === 'fin' ? m.finished : !m.finished)))
   const koMatches = matches.filter(m => m.stage !== 'group_stage')
 
   return (
@@ -95,13 +97,19 @@ export default function List() {
           {Object.entries(data.standings).map(([gn, teams]) => (
             <div className="gcard" key={gn}><b>组 {gn}</b>
               <table className="st"><thead><tr><th>队</th><th>场</th><th>胜平负</th><th>进失</th><th>分</th></tr></thead>
-                <tbody>{teams.map((t, i) => <tr key={t.team} className={i < 2 ? 'qual' : ''}><td>{t.team}</td><td>{t.p}</td><td>{t.w}-{t.d}-{t.l}</td><td>{t.gf}:{t.ga}</td><td><b>{t.pts}</b></td></tr>)}</tbody>
+                <tbody>{teams.map((t, i) => <tr key={t.team} className={i < 2 ? 'qual' : ''}><td>{nm(t.team)}</td><td>{t.p}</td><td>{t.w}-{t.d}-{t.l}</td><td>{t.gf}:{t.ga}</td><td><b>{t.pts}</b></td></tr>)}</tbody>
               </table></div>
           ))}
         </div>
       )}
       {tab === 'group' && <>
-        <div className="bar"><select value={g} onChange={e => setG(e.target.value)}><option value="">全部组</option>{groups.map(x => <option key={x} value={x}>{x}</option>)}</select></div>
+        <div className="bar">
+          <select value={g} onChange={e => setG(e.target.value)}><option value="">全部组</option>{groups.map(x => <option key={x} value={x}>{x}</option>)}</select>
+          <div className="segbtns">
+            {[['', '全部'], ['up', '未开赛'], ['fin', '已完赛']].map(([k, lbl]) =>
+              <button key={k} className={st === k ? 'on' : ''} onClick={() => setSt(k)}>{lbl}</button>)}
+          </div>
+        </div>
         <ByDate matches={groupMatches} />
       </>}
       {tab === 'ko' && <ByDate matches={koMatches} />}

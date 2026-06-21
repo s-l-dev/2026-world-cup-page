@@ -119,6 +119,20 @@ footer { margin-top: 36px; color: #59616e; font-size: 12px; text-align: center; 
 .oddsrow { display: flex; gap: 10px; margin-top: 8px; } .oddsrow > div { flex: 1; background: #0d1320; border: 1px solid #1c2438; border-radius: 9px; padding: 8px 11px; font-size: 13px; }
 .bigscore span { color: #59616e; }
 
+/* odds detail (spreads/totals) */
+.odddetail { margin-top: 10px; padding: 9px 11px; background: #0d1320; border: 1px solid #1c2438; border-radius: 9px; }
+.odddetail .k { margin-bottom: 6px; }
+.k2 { color: #8b949e; font-size: 12px; min-width: 48px; display: inline-block; }
+
+/* prediction-version switcher */
+.vsel { float: right; background: #131a28; color: #e6edf3; border: 1px solid #2a3550; border-radius: 7px; padding: 4px 8px; font-size: 12px; font-weight: 400; }
+.small { font-size: 11.5px; margin-top: 6px; }
+
+/* group finished/upcoming segmented filter */
+.segbtns { display: inline-flex; gap: 4px; }
+.segbtns button { background: #131a28; color: #8b949e; border: 1px solid #2a3550; border-radius: 8px; padding: 7px 12px; font-size: 13px; cursor: pointer; }
+.segbtns button.on { background: #1f6f9e; color: #fff; border-color: #1f6f9e; }
+
 /* bracket halves */
 .bhalf { font-size: 14px; color: #9fb4d8; font-weight: 700; margin: 16px 0 8px; padding-left: 4px; border-left: 3px solid #2f6f9e; }
 .bfinals { display: flex; gap: 14px; justify-content: center; margin: 14px 0; }
