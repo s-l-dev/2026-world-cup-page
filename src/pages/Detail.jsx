@@ -488,21 +488,21 @@ export default function Detail() {
           <CompareBar label="模型预测进球 λ" h={snap.lambda.home} a={snap.lambda.away} hn={nm(m.home)} an={nm(m.away)} />
           <div className="dim small">λ = 模型赛前预测的「场均进球数」（来自球队实力评级），是预测值。区别于下方赛后的 xG（由实际射门质量算出的预期进球值）。</div>
           <div className="grid">
-            <div><span className="k">最可能比分</span>{snap.topScores.slice(0, 3).map(s => `${s.score} ${pct(s.p)}（@${(1 / s.p).toFixed(1)}）`).join('，')}</div>
+            <div><span className="k">最可能比分</span>{snap.topScores.slice(0, 3).map(s => `${s.score} ${pct(s.p)}`).join('，')}</div>
             <div><span className="k">大小球 2.5</span>大 {pct(p.totals.o25)} / 小 {pct(1 - p.totals.o25)}</div>
             <div><span className="k">半场 主/平/客</span>{pct(p.ht.home)} / {pct(p.ht.draw)} / {pct(p.ht.away)}</div>
             <div><span className="k">双方进球</span>{pct(p.btts)}</div>
           </div>
-          {p.scoreOdds && p.scoreOdds.length > 0 && (
+          {p.scoreProbs && p.scoreProbs.length > 0 && (
             <div className="scoreodds">
-              <div className="k">比分赔率（模型公平赔率，无市场CS盘）</div>
-              <div className="soGrid">{p.scoreOdds.map((s, i) => (
-                <div className="soCell" key={i}><b>{s.score}</b><span className="odd">@{s.odds}</span><em>{pct(s.p)}</em></div>
+              <div className="k">比分概率（模型）</div>
+              <div className="soGrid">{p.scoreProbs.map((s, i) => (
+                <div className="soCell" key={i}><b>{s.score}</b><em>{pct(s.p)}</em></div>
               ))}</div>
-              <div className="dim small">= 1 ÷ 模型比分概率。庄家不开此盘或加水更高；仅作概率参考，非可下注价。</div>
+              <div className="dim small">模型对各比分的发生概率（前 12 高）。我们的盘口源不含正确比分市场，故只给概率、不给赔率。</div>
             </div>
           )}
-          {vi > 0 && <div className="dim small">↑ 历史快照（生成于 {snap.at.replace('T', ' ')}，截止 {snap.cutoff.replace('T', ' ')}）；比分赔率/大小球/半场/双方进球为最新值</div>}
+          {vi > 0 && <div className="dim small">↑ 历史快照（生成于 {snap.at.replace('T', ' ')}，截止 {snap.cutoff.replace('T', ' ')}）；比分概率/大小球/半场/双方进球为最新值</div>}
           {hist.length > 1 && <div className="dim small">共 {hist.length} 个预测快照，默认显示最新</div>}
         </section>
       )}
