@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { useParams, Link } from 'react-router-dom'
 import { useData, pct, bj, nm, ProbBar, ShotMap, Momentum, Zones, CompareBar, Pills, Rating } from '../lib.jsx'
 
-const luckTag = f => f.gf - f.xf >= 1 ? '🔥' : (f.xf - f.gf >= 1 ? '🥶' : '')
+const luckTag = f => f.gf - f.xf >= 1 ? ' 高效' : (f.xf - f.gf >= 1 ? ' 低效' : '')
 const Form = ({ list }) => list.length
   ? <div className="forms">{list.map((f, i) => <span key={i} className="formchip">vs{nm(f.opp)} <b>{f.gf}-{f.ga}</b> <em>xG{f.xf.toFixed(1)}-{f.xa.toFixed(1)}</em>{luckTag(f)}</span>)}</div>
   : <span className="dim">首战</span>
@@ -28,28 +28,43 @@ export default function Detail() {
     <div className="wrap detail">
       <Link to="/" className="back">← 返回赛程</Link>
       <header className="dhead">
-        <h1>{nm(m.home)} <span className="dim">vs</span> {nm(m.away)}</h1>
-        <div className="sub">{bj(m.kickoff)}（北京时间）· 组{m.group || m.stage} · {m.finished ? '已完赛' : '未开赛'}</div>
-        {m.finished && <div className="bigscore">{m.result.h} <span>:</span> {m.result.a}</div>}
+        <h1 className="sr-only">{nm(m.home)} vs {nm(m.away)}</h1>
+        <div className="matchmeta">{bj(m.kickoff)}（北京时间） · 组{m.group || m.stage} · {m.finished ? '已完赛' : '未开赛'}</div>
+        <div className="scoreboard">
+          <div className="side home">
+            <span className="crest xl">{m.home}</span>
+            <strong>{nm(m.home)}</strong>
+          </div>
+          <div className="scorebox">
+            {m.finished
+              ? <><b>{m.result.h}</b><span>-</span><b>{m.result.a}</b></>
+              : <span className="vsmark">VS</span>}
+            <small>{m.finished ? 'Full time' : 'Preview'}</small>
+          </div>
+          <div className="side away">
+            <span className="crest xl">{m.away}</span>
+            <strong>{nm(m.away)}</strong>
+          </div>
+        </div>
       </header>
 
       {m.finished && sc.postReport && (
         <section className="card report">
-          <h3>📝 赛后复盘</h3>
+          <h3>赛后复盘</h3>
           <ReportBody secs={sc.postReport} />
         </section>
       )}
 
       {sc.report && (
         <section className="card report">
-          <h3>🔍 球探报告{m.finished && <span className="dim small"> · 赛前留存</span>}</h3>
+          <h3>球探报告{m.finished && <span className="dim small"> · 赛前留存</span>}</h3>
           <ReportBody secs={sc.report} />
         </section>
       )}
 
       {p && (
         <section className="card prediction">
-          <h3>📈 模型预测
+          <h3>模型预测
             {hist.length > 1 && (
               <select className="vsel" value={vi} onChange={e => setVi(+e.target.value)}>
                 {hist.map((h, i) => <option key={i} value={i}>{h.at.replace('T', ' ')}{i === 0 ? ' · 最新' : ''}</option>)}
@@ -70,7 +85,7 @@ export default function Detail() {
       )}
 
       <section className="card intel">
-        <h3>🆚 赛前情报</h3>
+        <h3>赛前情报</h3>
         <div className="row"><span className="k">{nm(m.home)} 近况</span><Form list={sc.formHome} /></div>
         <div className="row"><span className="k">{nm(m.away)} 近况</span><Form list={sc.formAway} /></div>
         <CompareBar label="xG-form（实力被低估/高估）" h={sc.xgFormHome} a={sc.xgFormAway} hn={nm(m.home)} an={nm(m.away)} />
@@ -111,7 +126,7 @@ export default function Detail() {
 
       {m.finished && ts && (
         <section className="card stats">
-          <h3>⚽ 赛后关键数据</h3>
+          <h3>赛后关键数据</h3>
           {ts.home && ts.away && <>
             <CompareBar label="xG（预期进球）" h={+(ts.home.x || 0).toFixed(2)} a={+(ts.away.x || 0).toFixed(2)} hn={nm(m.home)} an={nm(m.away)} />
             <CompareBar label="射门" h={ts.home.s || 0} a={ts.away.s || 0} hn={nm(m.home)} an={nm(m.away)} />
@@ -121,7 +136,7 @@ export default function Detail() {
           {m.ratings && Object.entries(m.ratings).map(([tid, ps]) => (
             <div className="row" key={tid}><span className="k">{nm(tid)} 评分</span><div className="forms">{ps.map((x, i) => <span key={i} className="rchip">{x.name}<Rating r={x.r} /></span>)}</div></div>
           ))}
-          {m.events?.length > 0 && <div className="row"><span className="k">进球/牌</span><div className="forms">{m.events.map((e, i) => <span key={i} className="evchip">{e.min}' {e.type === 'Goal' ? '⚽' : '🟨'}{nm(e.team)} {e.player}</span>)}</div></div>}
+          {m.events?.length > 0 && <div className="row"><span className="k">进球/牌</span><div className="forms">{m.events.map((e, i) => <span key={i} className="evchip">{e.min}' {e.type === 'Goal' ? '进球' : '黄牌'} {nm(e.team)} {e.player}</span>)}</div></div>}
           <Zones zones={m.zones} home={m.home} away={m.away} />
           <ShotMap shots={m.shotmap} home={m.home} away={m.away} />
           <Momentum values={m.momentum} />

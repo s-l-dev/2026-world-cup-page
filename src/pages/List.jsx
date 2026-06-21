@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
 import { useData, pct, bj, bjTime, bjDate, nm } from '../lib.jsx'
 
-const TABS = [['standings', '📊 小组积分'], ['group', '📅 小组赛程'], ['ko', '🏆 淘汰赛'], ['bracket', '🗺️ 晋级图']]
+const TABS = [['standings', '小组积分'], ['group', '小组赛程'], ['ko', '淘汰赛'], ['bracket', '晋级图']]
 
 function MatchRow({ m }) {
   const pr = m.prediction
@@ -21,9 +21,9 @@ function MatchRow({ m }) {
         <span className={`badge ${m.finished ? 'fin' : 'up'}`}>{m.finished ? '完赛' : '未赛'}</span>
       </div>
       <div className="mteams">
-        <span className="mteam home">{nm(m.home)}</span>
+        <span className="mteam home"><span className="crest">{m.home}</span><span className="mname">{nm(m.home)}</span></span>
         <span className="dim">vs</span>
-        <span className="mteam away">{nm(m.away)}</span>
+        <span className="mteam away"><span className="crest">{m.away}</span><span className="mname">{nm(m.away)}</span></span>
       </div>
       <div className="mright">
         {m.finished
@@ -59,8 +59,8 @@ function ByDate({ matches }) {
 function BCard({ m }) {
   return (
     <Link to={`/m/${m.id}`} className={`bmatch ${m.result ? 'done' : 'todo'}`}>
-      <div className="bteam"><span className="bname">{nm(m.home)}</span>{m.result && <b>{m.result.h}</b>}</div>
-      <div className="bteam"><span className="bname">{nm(m.away)}</span>{m.result && <b>{m.result.a}</b>}</div>
+      <div className="bteam"><span className="bname"><span className="crest tiny">{m.home}</span>{nm(m.home)}</span>{m.result && <b>{m.result.h}</b>}</div>
+      <div className="bteam"><span className="bname"><span className="crest tiny">{m.away}</span>{nm(m.away)}</span>{m.result && <b>{m.result.a}</b>}</div>
       <div className="bdate">{bjDate(m.kickoff || m.date + 'T00:00:00Z').slice(5)}</div>
     </Link>
   )
@@ -112,11 +112,11 @@ export default function List() {
   return (
     <div className="wrap">
       <header>
-        <h1>🏆 世界杯 2026 · 数据与预测</h1>
+        <h1>世界杯 2026 数据中心</h1>
         <div className="sub">更新 {bj(data.generated_at)}（北京时间）</div>
       </header>
       <div className="kpis"><div><b>{fin}</b>已完赛</div><div><b>{matches.length - fin}</b>未开赛</div><div><b>{matches.length}</b>总场次</div></div>
-      <div className="note">⚠️ 模型预测仅供分析参考；"价值"多为模型与市场背离；影子模式，非下注建议。时间为北京时间。</div>
+      <div className="note">模型预测仅供分析参考；"价值"多为模型与市场背离；影子模式，非下注建议。时间为北京时间。</div>
       <div className="tabs">{TABS.map(([k, lbl]) => <button key={k} className={tab === k ? 'on' : ''} onClick={() => setTab(k)}>{lbl}</button>)}</div>
 
       {tab === 'standings' && (
