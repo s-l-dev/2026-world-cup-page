@@ -552,7 +552,7 @@ export default function Detail() {
           <h3><span>模型预测</span>
             {hist.length > 1 && (
               <select className="vsel" value={vi} onChange={e => setVi(+e.target.value)}>
-                {hist.map((h, i) => <option key={i} value={i}>{h.at.replace('T', ' ')}{i === 0 ? ' · 最新' : ''}</option>)}
+                {hist.map((h, i) => <option key={i} value={i}>{bj(h.at)}{i === 0 ? ' · 最新' : ''}</option>)}
               </select>
             )}
           </h3>
@@ -574,7 +574,7 @@ export default function Detail() {
               <div className="dim small">模型对各比分的发生概率（前 12 高）。我们的盘口源不含正确比分市场，故只给概率、不给赔率。</div>
             </div>
           )}
-          {vi > 0 && <div className="dim small">↑ 历史快照（生成于 {snap.at.replace('T', ' ')}，截止 {snap.cutoff.replace('T', ' ')}）；比分概率/大小球/半场/双方进球为最新值</div>}
+          {vi > 0 && <div className="dim small">↑ 历史快照（生成于 {bj(snap.at)}，截止 {bj(snap.cutoff)}，北京时间）；比分概率/大小球/半场/双方进球为最新值</div>}
           {hist.length > 1 && <div className="dim small">共 {hist.length} 个预测快照，默认显示最新</div>}
         </section>
       )}
