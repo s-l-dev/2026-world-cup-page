@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
-import { useData, pct, bj, bjTime, bjDate, nm } from '../lib.jsx'
+import { useData, pct, bj, bjTime, bjDate, nm, tn, Crest, TeamName } from '../lib.jsx'
 
 const TABS = [['standings', '小组积分'], ['group', '小组赛程'], ['ko', '淘汰赛'], ['bracket', '晋级图']]
 
@@ -8,9 +8,9 @@ function MatchRow({ m }) {
   const pr = m.prediction
   const predSegs = pr
     ? [
-      ['home', pr.x12.home, nm(m.home)],
+      ['home', pr.x12.home, tn(m.home)],
       ['draw', pr.x12.draw, '平'],
-      ['away', pr.x12.away, nm(m.away)]
+      ['away', pr.x12.away, tn(m.away)]
     ]
     : []
   return (
@@ -21,15 +21,15 @@ function MatchRow({ m }) {
         <span className={`badge ${m.finished ? 'fin' : 'up'}`}>{m.finished ? '完赛' : '未赛'}</span>
       </div>
       <div className="mteams">
-        <span className="mteam home"><span className="crest">{m.home}</span><span className="mname">{nm(m.home)}</span></span>
+        <span className="mteam home"><Crest code={m.home} /><span className="mname">{nm(m.home)}</span></span>
         <span className="dim">vs</span>
-        <span className="mteam away"><span className="crest">{m.away}</span><span className="mname">{nm(m.away)}</span></span>
+        <span className="mteam away"><Crest code={m.away} /><span className="mname">{nm(m.away)}</span></span>
       </div>
       <div className="mright">
         {m.finished
           ? <span className="score">{m.result.h}-{m.result.a}</span>
           : (pr
-            ? <span className="pred" title={`${nm(m.home)} ${pct(pr.x12.home)} / 平 ${pct(pr.x12.draw)} / ${nm(m.away)} ${pct(pr.x12.away)}`}>
+            ? <span className="pred" title={`${tn(m.home)} ${pct(pr.x12.home)} / 平 ${pct(pr.x12.draw)} / ${tn(m.away)} ${pct(pr.x12.away)}`}>
               {predSegs.map(([k, v, lbl]) => (
                 <span className={`pseg ${k}`} style={{ width: `${v * 100}%` }} key={k}>
                   <em>{lbl}</em><b>{pct(v)}</b>
@@ -59,8 +59,8 @@ function ByDate({ matches }) {
 function BCard({ m }) {
   return (
     <Link to={`/m/${m.id}`} className={`bmatch ${m.result ? 'done' : 'todo'}`}>
-      <div className="bteam"><span className="bname"><span className="crest tiny">{m.home}</span>{nm(m.home)}</span>{m.result && <b>{m.result.h}</b>}</div>
-      <div className="bteam"><span className="bname"><span className="crest tiny">{m.away}</span>{nm(m.away)}</span>{m.result && <b>{m.result.a}</b>}</div>
+      <div className="bteam"><span className="bname"><Crest code={m.home} className="tiny" />{nm(m.home)}</span>{m.result && <b>{m.result.h}</b>}</div>
+      <div className="bteam"><span className="bname"><Crest code={m.away} className="tiny" />{nm(m.away)}</span>{m.result && <b>{m.result.a}</b>}</div>
       <div className="bdate">{bjDate(m.kickoff || m.date + 'T00:00:00Z').slice(5)}</div>
     </Link>
   )
@@ -134,7 +134,13 @@ export default function List() {
           {Object.entries(data.standings).map(([gn, teams]) => (
             <div className="gcard" key={gn}><b>组 {gn}</b>
               <table className="st"><thead><tr><th>队</th><th>场</th><th>胜平负</th><th>进失</th><th>分</th></tr></thead>
-                <tbody>{teams.map((t, i) => <tr key={t.team} className={i < 2 ? 'qual' : ''}><td>{nm(t.team)}</td><td>{t.p}</td><td><span className="formnum win">{t.w}</span>-<span className="formnum draw">{t.d}</span>-<span className="formnum loss">{t.l}</span></td><td>{t.gf}:{t.ga}</td><td><b>{t.pts}</b></td></tr>)}</tbody>
+                <tbody>{teams.map((t, i) => <tr key={t.team} className={i < 2 ? 'qual' : ''}>
+                  <td data-label="队"><TeamName code={t.team} /></td>
+                  <td data-label="场">{t.p}</td>
+                  <td data-label="胜平负"><span className="formnum win">{t.w}</span>-<span className="formnum draw">{t.d}</span>-<span className="formnum loss">{t.l}</span></td>
+                  <td data-label="进失">{t.gf}:{t.ga}</td>
+                  <td data-label="分"><b>{t.pts}</b></td>
+                </tr>)}</tbody>
               </table></div>
           ))}
         </div>

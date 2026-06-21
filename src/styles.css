@@ -220,7 +220,7 @@ h2 {
   padding: var(--card-pad);
   border-radius: var(--radius-lg);
   transition: border-color .16s ease, box-shadow .16s ease, transform .16s ease;
-  overflow-x: auto;
+  overflow: hidden;
 }
 
 .gcard:hover {
@@ -241,6 +241,7 @@ h2 {
 
 .st {
   width: 100%;
+  table-layout: fixed;
   border-collapse: separate;
   border-spacing: 0;
   margin-top: var(--space-2);
@@ -296,6 +297,11 @@ h2 {
   color: var(--text);
   font-weight: 700;
   white-space: normal;
+}
+
+.st th:first-child,
+.st td:first-child {
+  width: 42%;
 }
 
 .st td:not(:first-child),
@@ -1743,6 +1749,34 @@ header h1 {
   letter-spacing: 0;
 }
 
+.flag {
+  display: inline-flex;
+  flex: 0 0 auto;
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+  line-height: 1;
+}
+
+.teamname {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  min-width: 0;
+  vertical-align: middle;
+}
+
+.teamname > span:last-child {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.crest.has-flag {
+  font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", var(--font-mono);
+  font-size: 1rem;
+}
+
 .mteam.home .crest,
 .side.home .crest {
   box-shadow: 0 0 0 3px var(--home-soft);
@@ -1759,10 +1793,18 @@ header h1 {
   font-size: .5rem;
 }
 
+.crest.tiny.has-flag {
+  font-size: .82rem;
+}
+
 .crest.xl {
   width: 56px;
   height: 56px;
   font-size: .78rem;
+}
+
+.crest.xl.has-flag {
+  font-size: 1.65rem;
 }
 
 .dayhdr {
@@ -2501,3 +2543,168 @@ header h1 {
 .soCell b { color: var(--text); font-size: var(--fs-sm); font-weight: 800; font-variant-numeric: tabular-nums; }
 .soCell .odd { color: var(--win-text); font-size: var(--fs-sm); font-weight: 800; }
 .soCell em { color: var(--muted); font-size: var(--fs-xs); font-style: normal; }
+
+@media (max-width: 620px) {
+  .gcard {
+    overflow: hidden;
+  }
+
+  .st {
+    table-layout: fixed;
+    font-size: .68rem;
+  }
+
+  .st th,
+  .st td {
+    padding: 7px 3px;
+  }
+
+  .st th:first-child,
+  .st td:first-child {
+    width: 44%;
+  }
+
+  .st .teamname {
+    gap: 4px;
+  }
+
+  .st .flag {
+    font-size: .82rem;
+  }
+
+  .formnum {
+    min-width: 14px;
+  }
+
+  .rtbl-wrap,
+  .mtbl-wrap {
+    overflow: visible;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+  }
+
+  .rtbl,
+  .rtbl.compact,
+  .mtbl {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    border-collapse: separate;
+    border-spacing: 0;
+  }
+
+  .rtbl thead,
+  .mtbl thead {
+    display: none;
+  }
+
+  .rtbl tbody,
+  .mtbl tbody {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .rtbl tr,
+  .mtbl tr {
+    display: grid;
+    gap: 5px;
+    padding: var(--space-2) var(--space-3);
+    background:
+      linear-gradient(180deg, rgb(255 255 255 / .026), transparent),
+      var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+  }
+
+  .rtbl tr.home {
+    border-left: 3px solid var(--home);
+  }
+
+  .rtbl tr.away {
+    border-left: 3px solid var(--away);
+  }
+
+  .rtbl tr.draw {
+    border-left: 3px solid var(--draw);
+  }
+
+  .mtbl tr.val {
+    background:
+      linear-gradient(90deg, var(--win-soft), transparent),
+      var(--surface);
+    border-color: rgb(0 196 106 / .25);
+  }
+
+  .rtbl td,
+  .mtbl td {
+    display: grid;
+    grid-template-columns: minmax(78px, .45fr) minmax(0, 1fr);
+    align-items: baseline;
+    gap: var(--space-2);
+    min-width: 0;
+    padding: 2px 0;
+    text-align: right;
+    white-space: normal;
+    border: 0;
+  }
+
+  .rtbl td::before,
+  .mtbl td::before {
+    content: attr(data-label);
+    min-width: 0;
+    color: var(--muted);
+    font-family: var(--font-sans);
+    font-size: .66rem;
+    font-weight: 900;
+    letter-spacing: .03em;
+    line-height: 1.35;
+    text-align: left;
+    text-transform: uppercase;
+  }
+
+  .rtbl td.sel,
+  .rtbl td.player,
+  .mtbl td.sel {
+    white-space: normal;
+  }
+
+  .rtbl td.num,
+  .mtbl td.ev {
+    text-align: right;
+  }
+
+  .rtbl tr.home td:first-child,
+  .rtbl tr.away td:first-child,
+  .rtbl tr.draw td:first-child,
+  .rtbl td.team.home,
+  .rtbl td.team.away,
+  .rtbl td.team.draw {
+    box-shadow: none;
+  }
+
+  .card.market .mblock {
+    margin: var(--space-3) 0;
+  }
+}
+
+@media (max-width: 520px) {
+  .crest.has-flag {
+    font-size: .95rem;
+  }
+
+  .crest.tiny.has-flag {
+    font-size: .78rem;
+  }
+
+  .crest.xl.has-flag {
+    font-size: 1.42rem;
+  }
+}
+
+/* ===== 盘口走势 board ===== */
+.oddsboard { margin-top: var(--space-3); }
+.oddsboard > .k { margin-bottom: var(--space-2); }
+.oddsboard .mtbl-wrap { margin-bottom: var(--space-2); }
+.mtbl.otbl { min-width: 0; }
+.mtbl.otbl td, .mtbl.otbl th { white-space: nowrap; }
