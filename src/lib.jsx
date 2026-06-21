@@ -1,0 +1,83 @@
+import React, { useEffect, useState } from 'react'
+
+let _cache = null
+export function useData() {
+  const [data, setData] = useState(_cache)
+  useEffect(() => {
+    if (_cache) return
+    fetch('/data.json').then(r => r.json()).then(d => { _cache = d; setData(d) })
+  }, [])
+  return data
+}
+
+export const pct = x => `${Math.round((x || 0) * 100)}%`
+export const fmtKick = k => k ? k.slice(5, 16).replace('T', ' ') : ''
+
+// 1X2 probability tri-bar
+export function ProbBar({ p, home, away }) {
+  if (!p) return null
+  const seg = [['home', p.home, '#1f6f3f', home], ['draw', p.draw, '#3a4654', '平'], ['away', p.away, '#8a5a1f', away]]
+  return (
+    <div className="probbar">
+      {seg.map(([k, v, c, lbl]) => (
+        <div key={k} style={{ width: `${v * 100}%`, background: c }} title={`${lbl} ${pct(v)}`}>
+          <span>{lbl}</span><b>{pct(v)}</b>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+// shot-map: home attacks left->right, away mirrored onto one pitch
+export function ShotMap({ shots, home, away }) {
+  if (!shots || !shots.length) return null
+  return (
+    <div className="block">
+      <div className="lbl">射门质量图 <span className="dim">蓝={home} 橙={away}，圈∝xG，实心=射正</span></div>
+      <svg viewBox="0 0 100 64" className="pitch">
+        <rect x="0" y="0" width="100" height="64" fill="#0b2616" stroke="#2f6f44" />
+        <line x1="50" y1="0" x2="50" y2="64" stroke="#2f6f44" />
+        <circle cx="50" cy="32" r="7" fill="none" stroke="#2f6f44" />
+        <rect x="0" y="18" width="13" height="28" fill="none" stroke="#2f6f44" />
+        <rect x="87" y="18" width="13" height="28" fill="none" stroke="#2f6f44" />
+        {shots.map((s, i) => {
+          const own = s.team === home
+          const x = own ? s.x : 100 - s.x, y = (own ? s.y : 100 - s.y) * 0.64
+          const r = 1.4 + 7 * Math.sqrt(Math.min(s.xg, 1))
+          const col = own ? '#58a6ff' : '#f0883e'
+          return <circle key={i} cx={x} cy={y} r={r} fill={s.on ? col : 'none'} stroke={col} strokeWidth="0.9" opacity="0.85" />
+        })}
+      </svg>
+    </div>
+  )
+}
+
+export function Momentum({ values }) {
+  if (!values || !values.length) return null
+  const mx = Math.max(...values.map(Math.abs)) || 1
+  return (
+    <div className="block">
+      <div className="lbl">动量曲线 <span className="dim">上=主队压制 下=客队</span></div>
+      <svg viewBox="0 0 100 40" className="mom">
+        <line x1="0" y1="20" x2="100" y2="20" stroke="#30363d" />
+        {values.map((v, i) => {
+          const w = 100 / values.length, h = Math.abs(v) / mx * 19
+          return <rect key={i} x={i * w} y={v >= 0 ? 20 - h : 20} width={w} height={h} fill={v >= 0 ? '#58a6ff' : '#f0883e'} />
+        })}
+      </svg>
+    </div>
+  )
+}
+
+export function Zones({ zones, home, away }) {
+  if (!zones || (!zones.home && !zones.away)) return null
+  const bar = (z, tid) => z ? (
+    <div className="zrow"><span className="ztid">{tid}</span>
+      <div className="zbar">
+        <i style={{ width: `${z.left}%`, background: '#1f6f3f' }}>{z.left} 左</i>
+        <i style={{ width: `${z.center}%`, background: '#30536f' }}>{z.center} 中</i>
+        <i style={{ width: `${z.right}%`, background: '#8a5a1f' }}>{z.right} 右</i>
+      </div></div>
+  ) : null
+  return <div className="block"><div className="lbl">进攻区域</div>{bar(zones.home, home)}{bar(zones.away, away)}</div>
+}
