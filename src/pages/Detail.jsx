@@ -1,6 +1,14 @@
 import React, { useState } from 'react'
-import { useParams, Link } from 'react-router-dom'
+import { useParams, useNavigate, useLocation } from 'react-router-dom'
 import { useData, pct, bj, nm, ProbBar, ShotMap, Momentum, Zones, CompareBar, Pills, Rating } from '../lib.jsx'
+
+// Back to the previous view (restores the list tab/filters); falls back to home on deep-link.
+function BackLink({ label = '← 返回赛程' }) {
+  const navigate = useNavigate()
+  const loc = useLocation()
+  const onBack = e => { e.preventDefault(); (loc.key && loc.key !== 'default') ? navigate(-1) : navigate('/') }
+  return <a href="/" onClick={onBack} className="back">{label}</a>
+}
 
 const luckTag = f => f.gf - f.xf >= 1 ? ' 高效' : (f.xf - f.gf >= 1 ? ' 低效' : '')
 const Form = ({ list }) => list.length
@@ -17,7 +25,7 @@ export default function Detail() {
   const [vi, setVi] = useState(0)
   if (!data) return <div className="wrap"><div className="loading">加载…</div></div>
   const m = data.matches.find(x => x.id === id)
-  if (!m) return <div className="wrap"><Link to="/" className="back">← 返回</Link><p>未找到</p></div>
+  if (!m) return <div className="wrap"><BackLink label="← 返回" /><p>未找到</p></div>
   const sc = m.scouting, p = m.prediction, o = m.odds, ts = m.teamStats
   const hist = m.predHistory || []
   const snap = hist[vi] || p
@@ -26,7 +34,7 @@ export default function Detail() {
 
   return (
     <div className="wrap detail">
-      <Link to="/" className="back">← 返回赛程</Link>
+      <BackLink />
       <header className="dhead">
         <h1 className="sr-only">{nm(m.home)} vs {nm(m.away)}</h1>
         <div className="matchmeta">{bj(m.kickoff)}（北京时间） · 组{m.group || m.stage} · {m.finished ? '已完赛' : '未开赛'}</div>

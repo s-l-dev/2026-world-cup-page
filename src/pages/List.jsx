@@ -1,5 +1,5 @@
-import React, { useState, useMemo } from 'react'
-import { Link } from 'react-router-dom'
+import React, { useMemo } from 'react'
+import { Link, useSearchParams } from 'react-router-dom'
 import { useData, pct, bj, bjTime, bjDate, nm } from '../lib.jsx'
 
 const TABS = [['standings', '小组积分'], ['group', '小组赛程'], ['ko', '淘汰赛'], ['bracket', '晋级图']]
@@ -98,9 +98,19 @@ function Bracket({ bracket }) {
 
 export default function List() {
   const data = useData()
-  const [tab, setTab] = useState('standings')
-  const [g, setG] = useState('')
-  const [st, setSt] = useState('')
+  // View state lives in the URL so Detail → 返回 restores the exact tab/filters.
+  const [sp, setSp] = useSearchParams()
+  const tab = sp.get('tab') || 'standings'
+  const g = sp.get('g') || ''
+  const st = sp.get('st') || ''
+  const setParam = (k, v) => setSp(prev => {
+    const n = new URLSearchParams(prev)
+    if (v) n.set(k, v); else n.delete(k)
+    return n
+  }, { replace: true })
+  const setTab = v => setParam('tab', v)
+  const setG = v => setParam('g', v)
+  const setSt = v => setParam('st', v)
   if (!data) return <div className="wrap"><div className="loading">加载数据…</div></div>
   const matches = data.matches
   const fin = matches.filter(m => m.finished).length
