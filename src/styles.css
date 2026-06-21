@@ -1199,8 +1199,25 @@ footer {
 }
 
 .rsec li {
-  margin: var(--space-1) 0;
+  margin: 5px 0;
   color: var(--text-soft);
+  font-size: var(--fs-sm);
+  line-height: 1.66;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+/* handicap chip: wider, muted separator, wraps cleanly on mobile */
+.formchip.hcp {
+  align-items: baseline;
+  flex-wrap: wrap;
+  white-space: normal;
+  line-height: 1.5;
+}
+.formchip.hcp i {
+  color: var(--faint);
+  font-style: normal;
+  margin: 0 4px;
 }
 
 .cmp {

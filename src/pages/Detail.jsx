@@ -96,7 +96,8 @@ export default function Detail() {
         <h3>赛前情报</h3>
         <div className="row"><span className="k">{nm(m.home)} 近况</span><Form list={sc.formHome} /></div>
         <div className="row"><span className="k">{nm(m.away)} 近况</span><Form list={sc.formAway} /></div>
-        <CompareBar label="xG-form（实力被低估/高估）" h={sc.xgFormHome} a={sc.xgFormAway} hn={nm(m.home)} an={nm(m.away)} />
+        <CompareBar label="场均净 xG（进攻 − 防守）" h={sc.xgFormHome} a={sc.xgFormAway} hn={nm(m.home)} an={nm(m.away)} />
+        <div className="dim small">净 xG = 场均（创造的 xG − 被对手创造的 xG）。正 = 过程上压制对手、负 = 被压制；衡量「踢得好不好」，剔除运气进球。样本少时仅供参考。</div>
         {sc.common.length > 0 && (
           <div className="cobox">
             <div className="k">共同对手三角</div>
@@ -117,18 +118,28 @@ export default function Detail() {
         </div></div>}
         <div className="oddsrow"><div><span className="k">开盘 主/平/客</span>{odds(o.opening)}</div><div><span className="k">收盘 主/平/客</span>{odds(o.closing)}</div></div>
         {od && (() => {
+          const sgn = v => (v > 0 ? '+' : '') + v
           const blk = (g, lbl) => {
             const sp = g.spreads || [], to = g.totals || []
             if (!sp.length && !to.length) return null
             return (
               <div className="odddetail" key={lbl}>
                 <div className="k">{lbl}盘口</div>
-                {sp.length > 0 && <div className="row"><span className="k2">让球</span><div className="forms">{sp.map((s, i) => <span key={i} className="formchip">{s.line > 0 ? '+' : ''}{s.line}　主{s.home}/客{s.away}</span>)}</div></div>}
-                {to.length > 0 && <div className="row"><span className="k2">大小球</span><div className="forms">{to.map((t, i) => <span key={i} className="formchip">{t.line}　大{t.over}/小{t.under}</span>)}</div></div>}
+                {sp.length > 0 && <div className="row"><span className="k2">让球</span><div className="forms">{sp.map((s, i) => (
+                  <span key={i} className="formchip hcp"><b>{nm(m.home)} {sgn(s.line)}</b> @{s.home}<i>｜</i><b>{nm(m.away)} {sgn(-s.line)}</b> @{s.away}</span>
+                ))}</div></div>}
+                {to.length > 0 && <div className="row"><span className="k2">总进球</span><div className="forms">{to.map((t, i) => (
+                  <span key={i} className="formchip"><b>{t.line}</b> 大 @{t.over} / 小 @{t.under}</span>
+                ))}</div></div>}
               </div>
             )
           }
-          return <>{blk(od.opening, '开盘')}{blk(od.closing, '收盘')}</>
+          const blocks = [blk(od.opening, '开盘'), blk(od.closing, '收盘')].filter(Boolean)
+          if (!blocks.length) return null
+          return <>
+            {blocks}
+            <div className="dim small">让球：负数 = 该队让球。例「{nm(m.home)} -1.5」指 {nm(m.home)} 需净胜 ≥2 球才算赢盘；「{nm(m.away)} +1.5」指 {nm(m.away)} 不败或仅输 1 球即赢盘。0 = 平手盘（平局退本金）。@ 后为赔率。</div>
+          </>
         })()}
       </section>
 
