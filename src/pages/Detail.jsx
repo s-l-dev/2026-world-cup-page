@@ -19,6 +19,69 @@ const ReportBody = ({ secs }) => secs.map((s, i) => (
   <div className="rsec" key={i}><h4>{s.t}</h4><ul>{s.b.map((b, j) => <li key={j}>{b}</li>)}</ul></div>
 ))
 
+const sgn = v => (v > 0 ? '+' : '') + v
+const EvCell = ({ s }) => {
+  if (!s || s.ev == null) return <td className="ev">—</td>
+  return <td className={`ev ${s.value ? 'pos' : s.ev < 0 ? 'neg' : ''}`}>{s.ev > 0 ? '+' : ''}{s.ev}%{s.value ? ' ✓' : ''}</td>
+}
+
+// generic two-side line ladder (handicap / totals): model% · best price · EV per side
+function Ladder({ title, sub, lines, lk, rk, llbl, rlbl, fmtLine }) {
+  return (
+    <div className="mblock">
+      <div className="mlabel">{title}{sub && <span className="dim"> · {sub}</span>}</div>
+      <div className="mtbl-wrap"><table className="mtbl">
+        <thead><tr><th>线</th><th>{llbl}模型</th><th>最优</th><th>EV</th><th>{rlbl}模型</th><th>最优</th><th>EV</th></tr></thead>
+        <tbody>{lines.map((r, i) => {
+          const L = r[lk], R = r[rk]
+          return (
+            <tr key={i}>
+              <td className="sel">{fmtLine(r.line)}</td>
+              <td>{L?.modelP != null ? pct(L.modelP) : '—'}</td><td className="best">{L?.best ?? '—'}</td><EvCell s={L} />
+              <td>{R?.modelP != null ? pct(R.modelP) : '—'}</td><td className="best">{R?.best ?? '—'}</td><EvCell s={R} />
+            </tr>
+          )
+        })}</tbody>
+      </table></div>
+    </div>
+  )
+}
+
+function MarketCompare({ m }) {
+  const mk = m.market
+  if (!mk) return null
+  const lbl = { home: nm(m.home), draw: '平局', away: nm(m.away) }
+  return (
+    <section className="card market">
+      <h3>💰 模型 vs 市场 <span className="dim small">下注参考 · 影子模式</span></h3>
+      {mk.h2h && (
+        <div className="mblock">
+          <div className="mlabel">胜平负 1X2 <span className="dim">· {mk.h2h.books} 家均盘</span></div>
+          <div className="mtbl-wrap"><table className="mtbl">
+            <thead><tr><th>选项</th><th>模型</th><th>市场无水</th><th>公平赔率</th><th>最优赔率</th><th>EV(中位)</th></tr></thead>
+            <tbody>{['home', 'draw', 'away'].map(k => {
+              const s = mk.h2h.sel[k]; if (!s) return null
+              return (
+                <tr key={k} className={s.value ? 'val' : ''}>
+                  <td className="sel">{lbl[k]}</td>
+                  <td>{pct(s.modelP)}</td><td>{s.novig != null ? pct(s.novig) : '—'}</td>
+                  <td>{s.fair ?? '—'}</td><td className="best">{s.best}</td><EvCell s={s} />
+                </tr>
+              )
+            })}</tbody>
+          </table></div>
+        </div>
+      )}
+      {mk.spreads && <Ladder title="让球（亚盘）" sub={`${mk.spreads.books} 家`} lines={mk.spreads.lines}
+        lk="home" rk="away" llbl={`${nm(m.home)} `} rlbl={`${nm(m.away)} `}
+        fmtLine={ln => `${nm(m.home)} ${sgn(ln)}`} />}
+      {mk.totals && <Ladder title="总进球 大/小" sub={`${mk.totals.books} 家`} lines={mk.totals.lines}
+        lk="over" rk="under" llbl="大 " rlbl="小 " fmtLine={ln => ln} />}
+      <div className="note small">⚠️ 仅供分析、非下注建议（影子模式）。EV 按各家<b>中位</b>赔率算（稳健），「最优赔率」供你比价找最高价。1X2 历史上模型有微弱 CLV 优势，但 EV 大小<b>不能</b>预测盈利、勿按背离加注；让球/大小球是<b>软盘</b>，背离多为噪声，模型并不能稳定打穿收盘——其 EV 仅供参考。✓=按中位价为正期望。</div>
+    </section>
+  )
+}
+
 export default function Detail() {
   const { id } = useParams()
   const data = useData()
@@ -29,7 +92,6 @@ export default function Detail() {
   const sc = m.scouting, p = m.prediction, o = m.odds, ts = m.teamStats
   const hist = m.predHistory || []
   const snap = hist[vi] || p
-  const od = m.oddsDetail
   const odds = d => d ? `${d.home} / ${d.draw} / ${d.away}` : '—'
 
   return (
@@ -93,6 +155,8 @@ export default function Detail() {
         </section>
       )}
 
+      <MarketCompare m={m} />
+
       <section className="card intel">
         <h3>赛前情报</h3>
         <div className="row"><span className="k">{nm(m.home)} 近况</span><Form list={sc.formHome} /></div>
@@ -118,30 +182,7 @@ export default function Detail() {
           {sc.injAway.length > 0 && <div>{nm(m.away)}: {sc.injAway.map(x => `${x.name}(${x.status})`).join(', ')}</div>}
         </div></div>}
         <div className="oddsrow"><div><span className="k">开盘 主/平/客</span>{odds(o.opening)}</div><div><span className="k">收盘 主/平/客</span>{odds(o.closing)}</div></div>
-        {od && (() => {
-          const sgn = v => (v > 0 ? '+' : '') + v
-          const blk = (g, lbl) => {
-            const sp = g.spreads || [], to = g.totals || []
-            if (!sp.length && !to.length) return null
-            return (
-              <div className="odddetail" key={lbl}>
-                <div className="k">{lbl}盘口</div>
-                {sp.length > 0 && <div className="row"><span className="k2">让球</span><div className="forms">{sp.map((s, i) => (
-                  <span key={i} className="formchip hcp"><b>{nm(m.home)} {sgn(s.line)}</b> @{s.home}<i>｜</i><b>{nm(m.away)} {sgn(-s.line)}</b> @{s.away}</span>
-                ))}</div></div>}
-                {to.length > 0 && <div className="row"><span className="k2">总进球</span><div className="forms">{to.map((t, i) => (
-                  <span key={i} className="formchip"><b>{t.line}</b> 大 @{t.over} / 小 @{t.under}</span>
-                ))}</div></div>}
-              </div>
-            )
-          }
-          const blocks = [blk(od.opening, '开盘'), blk(od.closing, '收盘')].filter(Boolean)
-          if (!blocks.length) return null
-          return <>
-            {blocks}
-            <div className="dim small">让球：负数 = 该队让球。例「{nm(m.home)} -1.5」指 {nm(m.home)} 需净胜 ≥2 球才算赢盘；「{nm(m.away)} +1.5」指 {nm(m.away)} 不败或仅输 1 球即赢盘。0 = 平手盘（平局退本金）。@ 后为赔率。</div>
-          </>
-        })()}
+        <div className="dim small">完整盘口（让球/大小球）与模型对比见上方「模型 vs 市场」。</div>
       </section>
 
       {m.finished && ts && (

@@ -2226,3 +2226,42 @@ header h1 {
     animation-iteration-count: 1 !important;
   }
 }
+
+/* ===== 模型 vs 市场 table ===== */
+.card.market .mblock { margin: var(--space-4) 0; }
+.card.market .mlabel {
+  margin-bottom: var(--space-2);
+  color: var(--text);
+  font-size: var(--fs-sm);
+  font-weight: 800;
+}
+.mtbl-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: var(--radius-sm); }
+.mtbl {
+  width: 100%;
+  min-width: 460px;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: var(--fs-xs);
+  font-variant-numeric: tabular-nums;
+}
+.mtbl th, .mtbl td {
+  padding: 7px var(--space-2);
+  text-align: center;
+  white-space: nowrap;
+  border-bottom: 1px solid rgb(255 255 255 / .05);
+}
+.mtbl th {
+  background: rgb(255 255 255 / .035);
+  color: var(--muted);
+  font-size: .68rem;
+  font-weight: 900;
+  letter-spacing: .02em;
+}
+.mtbl td.sel { text-align: left; color: var(--text); font-weight: 700; white-space: nowrap; }
+.mtbl td.best { color: var(--text); font-weight: 700; }
+.mtbl tr.val { background: var(--win-soft); }
+.mtbl td.ev { font-weight: 800; color: var(--muted); }
+.mtbl td.ev.pos { color: var(--win-text); }
+.mtbl td.ev.neg { color: var(--danger); }
+.mtbl tbody tr:last-child td { border-bottom: 0; }
+.card.market .note.small { margin-top: var(--space-3); line-height: 1.6; }
