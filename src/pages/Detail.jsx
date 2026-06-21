@@ -28,7 +28,12 @@ export default function Detail() {
       {!m.finished && sc.report && (
         <section className="card report">
           <h3>🔍 球探报告</h3>
-          <ul>{sc.report.map((b, i) => <li key={i}>{b}</li>)}</ul>
+          {sc.report.map((s, i) => (
+            <div className="rsec" key={i}>
+              <h4>{s.t}</h4>
+              <ul>{s.b.map((b, j) => <li key={j}>{b}</li>)}</ul>
+            </div>
+          ))}
         </section>
       )}
 

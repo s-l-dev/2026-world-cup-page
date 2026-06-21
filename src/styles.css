@@ -74,3 +74,26 @@ footer { margin-top: 36px; color: #59616e; font-size: 12px; text-align: center; 
 .zbar i { display: flex; align-items: center; justify-content: center; color: #fff; font-style: normal; }
 
 @media (max-width: 560px) { .grid { grid-template-columns: 1fr; } .mtime { width: 78px; } .row { flex-direction: column; gap: 2px; } .row .k { min-width: 0; } }
+
+/* tabs */
+.tabs { display: flex; gap: 6px; margin: 16px 0; flex-wrap: wrap; }
+.tabs button { background: #131a28; color: #aab; border: 1px solid #232c40; border-radius: 10px; padding: 8px 14px; font-size: 13.5px; cursor: pointer; transition: .14s; }
+.tabs button.on { background: linear-gradient(180deg, #1d4ed8, #1e40af); color: #fff; border-color: #2f6f9e; }
+.tabs button:hover { border-color: #2f6f9e; }
+
+/* schedule by date */
+.dayblock { margin: 14px 0; }
+.dayhdr { font-size: 13px; color: #9fb4d8; font-weight: 600; padding: 6px 2px; border-bottom: 1px solid #1e2636; margin-bottom: 7px; position: sticky; top: 0; background: #0a0e17cc; backdrop-filter: blur(6px); }
+
+/* bracket */
+.bracket { display: flex; gap: 14px; overflow-x: auto; padding: 6px 2px 16px; }
+.bcol { min-width: 150px; flex-shrink: 0; }
+.bhdr { font-size: 13px; color: #9fb4d8; font-weight: 600; margin-bottom: 8px; text-align: center; }
+.bmatch { display: block; background: #121826; border: 1px solid #1f2940; border-radius: 9px; padding: 8px 10px; margin-bottom: 10px; }
+.bmatch:hover { border-color: #2f6f9e; }
+.bteam { display: flex; justify-content: space-between; font-size: 12.5px; padding: 1px 0; }
+.bteam b { color: #fff; } .bdate { color: #59616e; font-size: 11px; margin-top: 3px; }
+
+/* report sections */
+.rsec { margin: 10px 0; } .rsec h4 { margin: 0 0 4px; font-size: 13.5px; color: #7fb0f0; }
+.rsec ul { margin: 0; padding-left: 18px; } .rsec li { margin: 4px 0; }
