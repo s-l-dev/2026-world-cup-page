@@ -15,9 +15,352 @@ const Form = ({ list }) => list.length
   ? <div className="forms">{list.map((f, i) => <span key={i} className="formchip">vs{nm(f.opp)} <b>{f.gf}-{f.ga}</b> <em>xG{f.xf.toFixed(1)}-{f.xa.toFixed(1)}</em>{luckTag(f)}</span>)}</div>
   : <span className="dim">首战</span>
 
-const ReportBody = ({ secs }) => secs.map((s, i) => (
-  <div className="rsec" key={i}><h4>{s.t}</h4><ul>{s.b.map((b, j) => <li key={j}>{b}</li>)}</ul></div>
-))
+const cell = (value, className = '') => ({ value, className })
+const num = value => cell(value ?? '—', 'num')
+const signed = value => cell(value ?? '—', `num ${String(value || '').trim().startsWith('+') ? 'pos' : String(value || '').trim().startsWith('-') ? 'neg' : ''}`)
+
+const statFrom = (text, key) => text.match(new RegExp(`${key}([+-]?\\d+(?:\\.\\d+)?)`))?.[1] ?? '—'
+const goalsFrom = text => text.match(/(\d+)球/)?.[1] ?? '0'
+const ratingFrom = text => text.match(/评分([+-]?\d+(?:\.\d+)?)/)?.[1] ?? '—'
+const teamClass = i => i === 0 ? 'home' : i === 1 ? 'away' : ''
+
+function ReportTable({ columns, rows, compact = false }) {
+  if (!rows?.length) return null
+  return (
+    <div className="rtbl-wrap">
+      <table className={`rtbl${compact ? ' compact' : ''}`}>
+        <thead><tr>{columns.map(c => <th key={c}>{c}</th>)}</tr></thead>
+        <tbody>
+          {rows.map((row, i) => {
+            const cells = Array.isArray(row) ? row : row.cells
+            return (
+              <tr key={i} className={Array.isArray(row) ? '' : row.className || ''}>
+                {cells.map((c, j) => {
+                  const v = typeof c === 'object' && c !== null ? c.value : c
+                  const cls = typeof c === 'object' && c !== null ? c.className : ''
+                  return <td key={j} className={cls}>{v}</td>
+                })}
+              </tr>
+            )
+          })}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
+const FallbackBullets = ({ lines }) => (
+  <ul>{lines.map((b, j) => <li key={j}>{b}</li>)}</ul>
+)
+
+const ReportNotes = ({ lines }) => lines?.length ? (
+  <ul className="rnotes">{lines.map((b, j) => <li key={j}>{b}</li>)}</ul>
+) : null
+
+const ReportCallouts = ({ lines }) => lines?.length ? (
+  <div className="rcallouts">
+    {lines.map((b, j) => {
+      const cls = b.startsWith('✅') ? 'pos' : b.startsWith('❌') ? 'neg' : b.startsWith('⚑') ? 'warn' : ''
+      return <div className={`rcallout ${cls}`} key={j}>{b}</div>
+    })}
+  </div>
+) : null
+
+function parsePlayerToken(team, raw, cls = '') {
+  const m = raw.trim().match(/^(.+?)\((.+)\)$/)
+  if (!m) return null
+  return {
+    className: cls,
+    cells: [
+      cell(team, 'sel'),
+      cell(m[1], 'player'),
+      num(goalsFrom(m[2])),
+      num(statFrom(m[2], 'xG')),
+      num(statFrom(m[2], 'xA')),
+      num(ratingFrom(m[2])),
+    ],
+  }
+}
+
+function renderModelJudgment(lines) {
+  const first = lines.find(x => x.startsWith('模型：'))
+  const m = first?.match(/^模型：(.+?) 胜 ([\d.]+)% \/ 平 ([\d.]+)% \/ (.+?) 胜 ([\d.]+)%，最可能 ([^（]+)（λ (.+?) ([\d.]+) - ([\d.]+) (.+?)）。/)
+  if (!m) return null
+  const [, home, hp, dp, away, ap, topScore, , hl, al] = m
+  const notes = lines.filter(x => x !== first && !x.startsWith('注意：'))
+  const callouts = lines.filter(x => x.startsWith('注意：'))
+  return (
+    <>
+      <div className="rsummary">
+        <span><b>最可能比分</b><strong>{topScore.trim()}</strong></span>
+        <span><b>模型进球 λ</b><strong>{home} {hl} - {al} {away}</strong></span>
+      </div>
+      <ReportTable columns={['选项', '概率', '模型进球']} rows={[
+        { className: 'home', cells: [cell(`${home} 胜`, 'sel team home'), num(`${hp}%`), num(hl)] },
+        { className: 'draw', cells: [cell('平局', 'sel team draw'), num(`${dp}%`), num('—')] },
+        { className: 'away', cells: [cell(`${away} 胜`, 'sel team away'), num(`${ap}%`), num(al)] },
+      ]} />
+      <ReportNotes lines={notes} />
+      <ReportCallouts lines={callouts} />
+    </>
+  )
+}
+
+function renderRecentForm(lines) {
+  const rows = []
+  const notes = []
+  lines.forEach((line, i) => {
+    const rich = line.match(/^(.+?)（样本仅 ([\d.]+) 场，(.+?)）：场均 xG 攻 ([\d.]+) \/ 防 ([\d.]+)；对手 ([^(]+)\(([^,]+),xG([\d.]+)-([\d.]+)\)。/)
+    const empty = line.match(/^([^：]+)：本届尚未有可用过程数据/)
+    if (rich) {
+      const [, team, sample, caveat, xgf, xga, opp, score, oxgf, oxga] = rich
+      rows.push({ className: teamClass(i), cells: [cell(team, `sel team ${teamClass(i)}`), num(sample), num(xgf), num(xga), cell(`${opp} ${score} · xG ${oxgf}-${oxga}`), cell(caveat)] })
+    } else if (empty) {
+      rows.push({ className: teamClass(i), cells: [cell(empty[1], `sel team ${teamClass(i)}`), num('0'), num('—'), num('—'), cell('暂无过程数据'), cell('首战或缺失')] })
+    } else {
+      notes.push(line)
+    }
+  })
+  if (!rows.length) return null
+  return (
+    <>
+      <ReportTable columns={['球队', '样本', 'xG攻', 'xG防', '对手 / 最近比赛', '备注']} rows={rows} />
+      <ReportNotes lines={notes} />
+    </>
+  )
+}
+
+function renderAttackDefense(lines) {
+  const modelLine = lines.find(x => x.startsWith('结论（模型校正后）'))
+  const model = modelLine?.match(/模型预测进球 (.+?) ([\d.]+) - ([\d.]+) (.+?)[，。](.*)/)
+  const meanLine = lines.find(x => x.startsWith('本届均值'))
+  const mean = meanLine?.match(/：(.+?) 进攻([\d.]+) vs (.+?) 防守([\d.]+)（差([+-]?[\d.]+)）｜ (.+?) 进攻([\d.]+) vs (.+?) 防守([\d.]+)（差([+-]?[\d.]+)）/)
+  const attackLine = lines.find(x => x.startsWith('进攻区域：'))
+  const attack = attackLine?.match(/^进攻区域：(.+?) 偏([^()]+)\((\d+)%\)、(.+?) 偏([^()]+)\((\d+)%\)。/)
+  const weakLine = lines.find(x => x.startsWith('防守软肋：'))
+  const weak = weakLine?.match(/^防守软肋：(.+?) 在([^()]+)偏松\((\d+)%\)、(.+?) 在([^()]+)偏松\((\d+)%\)。/)
+  const used = new Set([modelLine, meanLine, attackLine, weakLine].filter(Boolean))
+  const callouts = lines.filter(x => x.startsWith('⚑'))
+  callouts.forEach(x => used.add(x))
+  const notes = lines.filter(x => !used.has(x))
+  const tables = []
+  const modelCallouts = []
+  if (model) {
+    const [, home, hl, al, away, verdict] = model
+    tables.push(<ReportTable key="model" columns={['模型校正', '预测进球']} rows={[
+      { className: 'home', cells: [cell(home, 'sel team home'), num(hl)] },
+      { className: 'away', cells: [cell(away, 'sel team away'), num(al)] },
+    ]} compact />)
+    if (verdict) modelCallouts.push(`模型校正后：${verdict}`)
+  }
+  if (mean) {
+    tables.push(<ReportTable key="mean" columns={['本届对位', '进攻xG', '对手防守xG', '差值']} rows={[
+      [cell(`${mean[1]} 进攻 vs ${mean[3]} 防守`, 'sel'), num(mean[2]), num(mean[4]), signed(mean[5])],
+      [cell(`${mean[6]} 进攻 vs ${mean[8]} 防守`, 'sel'), num(mean[7]), num(mean[9]), signed(mean[10])],
+    ]} compact />)
+  }
+  if (attack || weak) {
+    const lanes = new Map()
+    if (attack) {
+      lanes.set(attack[1], { team: attack[1], atk: `${attack[2]} ${attack[3]}%` })
+      lanes.set(attack[4], { team: attack[4], atk: `${attack[5]} ${attack[6]}%` })
+    }
+    if (weak) {
+      lanes.set(weak[1], { ...(lanes.get(weak[1]) || { team: weak[1] }), weak: `${weak[2]} ${weak[3]}%` })
+      lanes.set(weak[4], { ...(lanes.get(weak[4]) || { team: weak[4] }), weak: `${weak[5]} ${weak[6]}%` })
+    }
+    tables.push(<ReportTable key="lanes" columns={['球队', '进攻倾向', '防守软肋']} rows={[...lanes.values()].map((x, i) => ({ className: teamClass(i), cells: [cell(x.team, `sel team ${teamClass(i)}`), cell(x.atk || '—'), cell(x.weak || '—')] }))} compact />)
+  }
+  if (!tables.length) return null
+  return <>{tables}<ReportCallouts lines={[...modelCallouts, ...callouts]} /><ReportNotes lines={notes} /></>
+}
+
+function renderKeyPlayers(lines) {
+  const rows = []
+  const callouts = []
+  const notes = []
+  lines.forEach(line => {
+    const fire = line.match(/^(.+?) 火力点：(.+)。/)
+    if (fire) {
+      const cls = teamClass(rows.length ? 1 : 0)
+      fire[2].split('、').forEach(raw => {
+        const parsed = parsePlayerToken(fire[1], raw, cls)
+        if (parsed) rows.push(parsed)
+      })
+    } else if (line.trim().startsWith('→') || line.startsWith('⚑')) {
+      callouts.push(line)
+    } else {
+      notes.push(line)
+    }
+  })
+  if (!rows.length) return null
+  return (
+    <>
+      <ReportTable columns={['球队', '球员', '进球', 'xG', 'xA', '评分']} rows={rows} />
+      <ReportCallouts lines={callouts} />
+      <ReportNotes lines={notes} />
+    </>
+  )
+}
+
+function renderTactics(lines) {
+  const teams = []
+  const byTeam = new Map()
+  const used = new Set()
+  lines.forEach(line => {
+    const setup = line.match(/^([^：]+)：阵型 ([^，]+)，(.+?)（控球 ([\d.]+)\/直接 ([\d.]+)，防线 (.+?)）。/)
+    if (setup) {
+      const [, team, shape, style, control, direct, lineHeight] = setup
+      const row = { team, shape, style, control, direct, lineHeight }
+      byTeam.set(team, row)
+      teams.push(team)
+      used.add(line)
+      return
+    }
+    const press = line.match(/^\s*(.+?) 压迫倾向.*?：对方半场触球占比 ([\d.]+)%、PPDA≈([\d.]+).*?→ (.+?)。/)
+    if (press) {
+      const [, team, territory, ppda, label] = press
+      byTeam.set(team, { ...(byTeam.get(team) || { team }), press: `${label} · ${territory}% · PPDA ${ppda}` })
+      if (!teams.includes(team)) teams.push(team)
+      used.add(line)
+    }
+  })
+  const rows = teams.map((team, i) => {
+    const x = byTeam.get(team)
+    return {
+      className: teamClass(i),
+      cells: [
+        cell(team, `sel team ${teamClass(i)}`),
+        cell(x.shape || '—'),
+        cell(x.style || '—'),
+        num(x.control),
+        num(x.direct),
+        cell(x.lineHeight || '—'),
+        cell(x.press || '—'),
+      ],
+    }
+  })
+  if (!rows.length) return null
+  return (
+    <>
+      <ReportTable columns={['球队', '阵型', '主要风格', '控球', '直接', '防线', '压迫']} rows={rows} />
+      <ReportCallouts lines={lines.filter(x => !used.has(x) && x.includes('→'))} />
+      <ReportNotes lines={lines.filter(x => !used.has(x) && !x.includes('→'))} />
+    </>
+  )
+}
+
+function renderLuck(lines) {
+  const rows = []
+  const notes = []
+  lines.forEach((line, i) => {
+    const m = line.match(/^([^：]+)：进球-xG ([^ ]+)\/场 → ([^；]+)；xG-form ([^。]+)。/)
+    if (m) rows.push({ className: teamClass(i), cells: [cell(m[1], `sel team ${teamClass(i)}`), signed(m[2]), cell(m[3]), signed(m[4])] })
+    else notes.push(line)
+  })
+  if (!rows.length) return null
+  return <><ReportTable columns={['球队', '进球-xG/场', '效率解读', 'xG-form']} rows={rows} compact /><ReportNotes lines={notes} /></>
+}
+
+function renderPostResult(lines) {
+  const final = lines.find(x => x.startsWith('终场 '))
+  const xgLine = lines.find(x => x.startsWith('xG '))
+  const f = final?.match(/^终场 (.+?) ([\d]+)-([\d]+) (.+?)。(.+)。/)
+  const xg = xgLine?.match(/^xG (.+?) ([\d.]+) - ([\d.]+) (.+?)。/)
+  if (!f && !xg) return null
+  const rows = []
+  if (f) rows.push([cell('比分', 'sel'), cell(`${f[1]} ${f[2]}`, 'num'), cell(`${f[3]} ${f[4]}`, 'num'), cell(f[5])])
+  if (xg) rows.push([cell('xG', 'sel'), cell(`${xg[1]} ${xg[2]}`, 'num'), cell(`${xg[3]} ${xg[4]}`, 'num'), cell('实际射门质量')])
+  return (
+    <>
+      <ReportTable columns={['指标', '主队', '客队', '备注']} rows={rows} compact />
+      <ReportCallouts lines={lines.filter(x => x !== final && x !== xgLine)} />
+    </>
+  )
+}
+
+function renderModelReview(lines) {
+  const first = lines.find(x => x.startsWith('赛前模型：'))
+  const m = first?.match(/^赛前模型：(.+?) ([\d.]+)% \/ 平 ([\d.]+)% \/ (.+?) ([\d.]+)%，最看好「(.+?)」。/)
+  if (!m) return null
+  const [, home, hp, dp, away, ap, pick] = m
+  return (
+    <>
+      <div className="rsummary single"><span><b>赛前首选</b><strong>{pick}</strong></span></div>
+      <ReportTable columns={['选项', '赛前概率']} rows={[
+        { className: 'home', cells: [cell(home, 'sel team home'), num(`${hp}%`)] },
+        { className: 'draw', cells: [cell('平局', 'sel team draw'), num(`${dp}%`)] },
+        { className: 'away', cells: [cell(away, 'sel team away'), num(`${ap}%`)] },
+      ]} compact />
+      <ReportCallouts lines={lines.filter(x => x !== first)} />
+    </>
+  )
+}
+
+function renderPostKeyPeople(lines) {
+  const playerRows = []
+  const goalRows = []
+  const notes = []
+  lines.forEach((line, i) => {
+    const p = line.match(/^([^：]+)：(.+?)（(.+?)）。/)
+    if (p) {
+      playerRows.push({
+        className: teamClass(i),
+        cells: [
+          cell(p[1], `sel team ${teamClass(i)}`),
+          cell(p[2], 'player'),
+          num(goalsFrom(p[3])),
+          num(statFrom(p[3], 'xG')),
+          num(statFrom(p[3], 'xA')),
+        ],
+      })
+      return
+    }
+    if (line.startsWith('进球：')) {
+      line.replace(/^进球：/, '').split('，').forEach(raw => {
+        const g = raw.trim().match(/^([\d+']+)\s+([A-Z]{3})\s+(.+)$/)
+        if (g) goalRows.push([cell(g[1], 'num'), cell(g[2], 'sel'), cell(g[3], 'player')])
+        else notes.push(raw.trim())
+      })
+      return
+    }
+    notes.push(line)
+  })
+  if (!playerRows.length && !goalRows.length) return null
+  return (
+    <>
+      <ReportTable columns={['球队', '关键球员', '进球', 'xG', 'xA']} rows={playerRows} compact />
+      <ReportTable columns={['时间', '球队', '进球者']} rows={goalRows} compact />
+      <ReportNotes lines={notes} />
+    </>
+  )
+}
+
+function renderReportSection(sec) {
+  const lines = sec.b || []
+  if (sec.t === '模型判断') return renderModelJudgment(lines)
+  if (sec.t === '近期状态（小样本）') return renderRecentForm(lines)
+  if (sec.t === '进攻防守对位') return renderAttackDefense(lines)
+  if (sec.t === '关键球员与软肋') return renderKeyPlayers(lines)
+  if (sec.t === '打法与球队结构') return renderTactics(lines)
+  if (sec.t === '运气与回归') return renderLuck(lines)
+  if (sec.t === '结果与过程') return renderPostResult(lines)
+  if (sec.t === '模型对照') return renderModelReview(lines)
+  if (sec.t === '关键人物与进球') return renderPostKeyPeople(lines)
+  return null
+}
+
+function ReportSection({ sec }) {
+  const rendered = renderReportSection(sec)
+  return (
+    <div className={`rsec${rendered ? ' has-table' : ''}`}>
+      <h4>{sec.t}</h4>
+      {rendered || <FallbackBullets lines={sec.b || []} />}
+    </div>
+  )
+}
+
+const ReportBody = ({ secs }) => secs.map((s, i) => <ReportSection sec={s} key={i} />)
 
 const sgn = v => (v > 0 ? '+' : '') + v
 const EvCell = ({ s }) => {

@@ -2092,6 +2092,211 @@ header h1 {
   color: var(--pitch);
 }
 
+/* ===== Scouting report tables ===== */
+.rsec {
+  padding: var(--space-3) 0;
+  border-top: 1px solid rgb(255 255 255 / .055);
+}
+
+.rsec:first-of-type {
+  padding-top: 0;
+  border-top: 0;
+}
+
+.rsec.has-table {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.rsummary {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-2);
+}
+
+.rsummary.single {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.rsummary span {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  min-width: 0;
+  padding: var(--space-2) var(--space-3);
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / .035), transparent),
+    var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+}
+
+.rsummary b {
+  color: var(--muted);
+  font-size: .68rem;
+  font-weight: 900;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.rsummary strong {
+  min-width: 0;
+  overflow: hidden;
+  color: var(--text);
+  font-size: var(--fs-sm);
+  font-weight: 900;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.rtbl-wrap {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-deep);
+  box-shadow: var(--shadow-xs);
+}
+
+.rtbl {
+  width: 100%;
+  min-width: 560px;
+  border-collapse: separate;
+  border-spacing: 0;
+  color: var(--text-soft);
+  font-size: var(--fs-xs);
+  font-variant-numeric: tabular-nums;
+}
+
+.rtbl.compact {
+  min-width: 420px;
+}
+
+.rtbl th,
+.rtbl td {
+  padding: 8px var(--space-3);
+  text-align: left;
+  vertical-align: middle;
+  border-bottom: 1px solid rgb(255 255 255 / .055);
+}
+
+.rtbl th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: var(--surface);
+  color: var(--muted);
+  font-size: .68rem;
+  font-weight: 900;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.rtbl tbody tr:nth-child(even) td {
+  background: rgb(255 255 255 / .018);
+}
+
+.rtbl tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.rtbl tr.home td:first-child,
+.rtbl td.team.home {
+  box-shadow: inset 3px 0 var(--home);
+}
+
+.rtbl tr.away td:first-child,
+.rtbl td.team.away {
+  box-shadow: inset 3px 0 var(--away);
+}
+
+.rtbl tr.draw td:first-child,
+.rtbl td.team.draw {
+  box-shadow: inset 3px 0 var(--draw);
+}
+
+.rtbl td.sel {
+  color: var(--text);
+  font-weight: 850;
+  white-space: nowrap;
+}
+
+.rtbl td.player {
+  color: var(--text);
+  font-weight: 750;
+}
+
+.rtbl td.num {
+  color: var(--text);
+  font-family: var(--font-mono);
+  font-size: .72rem;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.rtbl td.pos {
+  color: var(--win-text);
+}
+
+.rtbl td.neg {
+  color: var(--danger-text);
+}
+
+.rnotes {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.rnotes li,
+.rcallout {
+  padding: var(--space-2) var(--space-3);
+  color: var(--text-soft);
+  font-size: var(--fs-sm);
+  line-height: 1.62;
+  overflow-wrap: anywhere;
+  background: rgb(255 255 255 / .025);
+  border: 1px solid rgb(255 255 255 / .055);
+  border-radius: var(--radius-sm);
+}
+
+.rcallouts {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.rcallout {
+  border-left: 3px solid var(--draw);
+}
+
+.rcallout.pos {
+  color: var(--win-text);
+  background: var(--win-soft);
+  border-color: rgb(0 196 106 / .2);
+  border-left-color: var(--win);
+}
+
+.rcallout.neg {
+  color: var(--danger-text);
+  background: var(--danger-soft);
+  border-color: rgb(255 98 112 / .2);
+  border-left-color: var(--danger);
+}
+
+.rcallout.warn {
+  color: var(--away-text);
+  background: var(--away-soft);
+  border-color: rgb(255 156 74 / .2);
+  border-left-color: var(--away);
+}
+
 .probbar {
   height: 46px;
   border-radius: var(--radius-sm);
@@ -2213,6 +2418,14 @@ header h1 {
 
   .score {
     width: 100%;
+  }
+
+  .rsummary {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .rsummary strong {
+    white-space: normal;
   }
 }
 
