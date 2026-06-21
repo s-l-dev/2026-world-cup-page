@@ -40,6 +40,25 @@ export default function Detail() {
         </section>
       )}
 
+      {m.finished && ts && (
+        <section className="card">
+          <h3>⚽ 赛后关键数据</h3>
+          {ts.home && ts.away && <>
+            <CompareBar label="xG（预期进球）" h={+(ts.home.x || 0).toFixed(2)} a={+(ts.away.x || 0).toFixed(2)} hn={nm(m.home)} an={nm(m.away)} />
+            <CompareBar label="射门" h={ts.home.s || 0} a={ts.away.s || 0} hn={nm(m.home)} an={nm(m.away)} />
+            <CompareBar label="控球" h={Math.round(ts.home.p || 0)} a={Math.round(ts.away.p || 0)} suffix="%" hn={nm(m.home)} an={nm(m.away)} />
+          </>}
+          {m.setPiece && <CompareBar label="定位球 xG" h={m.setPiece.home.sp} a={m.setPiece.away.sp} hn={nm(m.home)} an={nm(m.away)} />}
+          {m.ratings && Object.entries(m.ratings).map(([tid, ps]) => (
+            <div className="row" key={tid}><span className="k">{nm(tid)} 评分</span><div className="forms">{ps.map((x, i) => <span key={i} className="rchip">{x.name}<Rating r={x.r} /></span>)}</div></div>
+          ))}
+          {m.events?.length > 0 && <div className="row"><span className="k">进球/牌</span><div className="forms">{m.events.map((e, i) => <span key={i} className="evchip">{e.min}' {e.type === 'Goal' ? '⚽' : '🟨'}{nm(e.team)} {e.player}</span>)}</div></div>}
+          <Zones zones={m.zones} home={m.home} away={m.away} />
+          <ShotMap shots={m.shotmap} home={m.home} away={m.away} />
+          <Momentum values={m.momentum} />
+        </section>
+      )}
+
       {sc.report && (
         <section className="card report">
           <h3>🔍 球探报告{m.finished && <span className="dim small"> · 赛前留存</span>}</h3>
@@ -109,24 +128,6 @@ export default function Detail() {
         })()}
       </section>
 
-      {m.finished && ts && (
-        <section className="card">
-          <h3>⚽ 赛后关键数据</h3>
-          {ts.home && ts.away && <>
-            <CompareBar label="xG（预期进球）" h={+(ts.home.x || 0).toFixed(2)} a={+(ts.away.x || 0).toFixed(2)} hn={m.home} an={m.away} />
-            <CompareBar label="射门" h={ts.home.s || 0} a={ts.away.s || 0} hn={m.home} an={m.away} />
-            <CompareBar label="控球" h={Math.round(ts.home.p || 0)} a={Math.round(ts.away.p || 0)} suffix="%" hn={m.home} an={m.away} />
-          </>}
-          {m.setPiece && <CompareBar label="定位球 xG" h={m.setPiece.home.sp} a={m.setPiece.away.sp} hn={m.home} an={m.away} />}
-          {m.ratings && Object.entries(m.ratings).map(([tid, ps]) => (
-            <div className="row" key={tid}><span className="k">{nm(tid)} 评分</span><div className="forms">{ps.map((x, i) => <span key={i} className="rchip">{x.name}<Rating r={x.r} /></span>)}</div></div>
-          ))}
-          {m.events?.length > 0 && <div className="row"><span className="k">进球/牌</span><div className="forms">{m.events.map((e, i) => <span key={i} className="evchip">{e.min}' {e.type === 'Goal' ? '⚽' : '🟨'}{nm(e.team)} {e.player}</span>)}</div></div>}
-          <Zones zones={m.zones} home={m.home} away={m.away} />
-          <ShotMap shots={m.shotmap} home={m.home} away={m.away} />
-          <Momentum values={m.momentum} />
-        </section>
-      )}
       <footer>仅供分析 · 影子模式</footer>
     </div>
   )
