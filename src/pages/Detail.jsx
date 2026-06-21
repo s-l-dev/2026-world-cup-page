@@ -107,21 +107,31 @@ function renderModelJudgment(lines) {
 }
 
 function renderRecentForm(lines) {
-  const rows = []
+  const teamRows = []
   const notes = []
-  lines.forEach((line, i) => {
-    const rich = line.match(/^(.+?)（样本仅 ([\d.]+) 场，(.+?)）：场均 xG 攻 ([\d.]+) \/ 防 ([\d.]+)；对手 ([^(]+)\(([^,]+),xG([\d.]+)-([\d.]+)\)。/)
+  lines.forEach(line => {
+    // handles both '样本仅 1 场，参考价值低' and '（N 场）'; parses ALL opponents
+    const rich = line.match(/^(.+?)（(?:样本仅 )?(\d+) 场(?:，([^）]+))?）：场均 xG 攻 ([\d.]+) \/ 防 ([\d.]+)；对手 (.+?)。$/)
     const empty = line.match(/^([^：]+)：本届尚未有可用过程数据/)
     if (rich) {
-      const [, team, sample, caveat, xgf, xga, opp, score, oxgf, oxga] = rich
-      rows.push({ className: teamClass(i), cells: [cell(tn(team), `sel team ${teamClass(i)}`), num(sample), num(xgf), num(xga), cell(`${tn(opp)} ${score} · xG ${oxgf}-${oxga}`), cell(caveat)] })
+      const [, team, sample, caveat, xgf, xga, oppsRaw] = rich
+      const opps = oppsRaw.split('、').map(t => {
+        const mm = t.match(/^(.+?)\(([^,]+),xG([\d.]+)-([\d.]+)\)$/)
+        return mm ? `${tn(mm[1])} ${mm[2]} · xG ${mm[3]}-${mm[4]}` : t
+      }).join('；')
+      teamRows.push({ team, sample, xgf, xga, opps, caveat: caveat || '—' })
     } else if (empty) {
-      rows.push({ className: teamClass(i), cells: [cell(tn(empty[1]), `sel team ${teamClass(i)}`), num('0'), num('—'), num('—'), cell('暂无过程数据'), cell('首战或缺失')] })
+      teamRows.push({ team: empty[1], sample: '0', xgf: '—', xga: '—', opps: '暂无过程数据', caveat: '首战或缺失' })
     } else {
       notes.push(line)
     }
   })
-  if (!rows.length) return null
+  if (!teamRows.length) return null
+  // 球队顺序固定为主、客 → teamClass by row index
+  const rows = teamRows.map((r, i) => ({
+    className: teamClass(i),
+    cells: [cell(tn(r.team), `sel team ${teamClass(i)}`), num(r.sample), num(r.xgf), num(r.xga), cell(r.opps), cell(r.caveat)],
+  }))
   return (
     <>
       <ReportTable columns={['球队', '样本', 'xG攻', 'xG防', '对手 / 最近比赛', '备注']} rows={rows} />
@@ -179,10 +189,12 @@ function renderKeyPlayers(lines) {
   const rows = []
   const callouts = []
   const notes = []
+  let teamIdx = -1
   lines.forEach(line => {
     const fire = line.match(/^(.+?) 火力点：(.+)。/)
     if (fire) {
-      const cls = teamClass(rows.length ? 1 : 0)
+      teamIdx++  // home=0, away=1 by appearance order (not row count, which breaks if tokens fail)
+      const cls = teamClass(teamIdx)
       fire[2].split('、').forEach(raw => {
         const parsed = parsePlayerToken(fire[1], raw, cls)
         if (parsed) rows.push(parsed)
