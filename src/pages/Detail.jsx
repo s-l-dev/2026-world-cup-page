@@ -115,10 +115,20 @@ function renderRecentForm(lines) {
     const empty = line.match(/^([^：]+)：本届尚未有可用过程数据/)
     if (rich) {
       const [, team, sample, caveat, xgf, xga, oppsRaw] = rich
-      const opps = oppsRaw.split('、').map(t => {
+      const items = oppsRaw.split('、').map((t, k) => {
         const mm = t.match(/^(.+?)\(([^,]+),xG([\d.]+)-([\d.]+)\)$/)
-        return mm ? `${tn(mm[1])} ${mm[2]} · xG ${mm[3]}-${mm[4]}` : t
-      }).join('；')
+        if (!mm) return <span className="oppitem" key={k}>{t}</span>
+        const [s1, s2] = mm[2].split('-')  // 本队进球 - 对手进球
+        const res = +s1 > +s2 ? 'w' : +s1 < +s2 ? 'l' : 'd'
+        return (
+          <span className="oppitem" key={k}>
+            <span className="vs">vs</span> <b>{tn(mm[1])}</b>
+            <span className={`fres ${res}`}>{mm[2]}</span>
+            <em>xG {mm[3]}-{mm[4]}</em>
+          </span>
+        )
+      })
+      const opps = <span className="oppslist">{items}</span>
       teamRows.push({ team, sample, xgf, xga, opps, caveat: caveat || '—' })
     } else if (empty) {
       teamRows.push({ team: empty[1], sample: '0', xgf: '—', xga: '—', opps: '暂无过程数据', caveat: '首战或缺失' })

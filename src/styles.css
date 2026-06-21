@@ -2885,3 +2885,19 @@ header h1 {
 .oddsboard .mtbl-wrap { margin-bottom: var(--space-2); }
 .mtbl.otbl { min-width: 0; }
 .mtbl.otbl td, .mtbl.otbl th { white-space: nowrap; }
+
+/* ===== 近期状态：对手 / 比分（消除歧义） ===== */
+.oppslist { display: flex; flex-direction: column; gap: 4px; }
+.oppitem { display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap; white-space: nowrap; }
+.oppitem .vs { color: var(--faint); font-size: var(--fs-xs); }
+.oppitem b { color: var(--text); font-weight: 700; }
+.oppitem .fres {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 30px; padding: 1px 6px; border-radius: var(--radius-pill);
+  font-weight: 800; font-variant-numeric: tabular-nums;
+  background: var(--surface-strong); color: var(--text);
+}
+.oppitem .fres.w { background: var(--win-soft); color: var(--win-text); }
+.oppitem .fres.l { background: var(--danger-soft); color: var(--danger-text); }
+.oppitem .fres.d { background: var(--draw-soft); color: var(--text-soft); }
+.oppitem em { color: var(--muted); font-style: normal; font-size: var(--fs-xs); }
