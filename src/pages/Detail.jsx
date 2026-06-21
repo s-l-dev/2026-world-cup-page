@@ -527,7 +527,7 @@ export default function Detail() {
 
       {p && (
         <section className="card prediction">
-          <h3>模型预测
+          <h3><span>模型预测</span>
             {hist.length > 1 && (
               <select className="vsel" value={vi} onChange={e => setVi(+e.target.value)}>
                 {hist.map((h, i) => <option key={i} value={i}>{h.at.replace('T', ' ')}{i === 0 ? ' · 最新' : ''}</option>)}

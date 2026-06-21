@@ -699,6 +699,14 @@ footer {
   align-items: center;
 }
 
+.prediction h3 > span {
+  min-width: 0;
+}
+
+.prediction h3 .vsel {
+  margin-left: auto;
+}
+
 .probbar {
   display: flex;
   position: relative;
@@ -2687,10 +2695,107 @@ header h1 {
     margin: var(--space-3) 0;
   }
 
+  .prediction h3 {
+    align-items: stretch;
+    gap: var(--space-3);
+    padding-bottom: var(--space-2);
+    border-bottom: 1px solid rgb(255 255 255 / .06);
+  }
+
+  .prediction h3 > span {
+    flex: 1 1 100%;
+  }
+
+  .prediction h3 .vsel {
+    flex: 1 1 100%;
+    width: 100%;
+    max-width: none;
+    margin-left: 0;
+    font-size: .75rem;
+  }
+
+  .probbar {
+    display: grid;
+    height: auto;
+    gap: var(--space-2);
+    margin-bottom: var(--space-3);
+    overflow: visible;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .probbar::after {
+    display: none;
+  }
+
+  .probbar > div {
+    width: 100% !important;
+    min-height: 42px;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding: 0 var(--space-3);
+    border: 1px solid rgb(255 255 255 / .1);
+    border-radius: var(--radius-sm);
+  }
+
+  .probbar > div + div {
+    border-left: 1px solid rgb(255 255 255 / .1);
+  }
+
+  .probbar span {
+    white-space: normal;
+    text-align: left;
+    font-size: .76rem;
+  }
+
+  .probbar b {
+    flex: 0 0 auto;
+    margin-top: 0;
+    font-size: var(--fs-md);
+  }
+
+  .prediction .grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--space-2);
+  }
+
+  .prediction .grid > div {
+    padding: var(--space-2);
+    font-size: .78rem;
+    line-height: 1.45;
+  }
+
+  .scoreodds {
+    margin-top: var(--space-3);
+  }
+
+  .scoreodds > .k {
+    margin-bottom: var(--space-2);
+  }
+
+  .soGrid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 6px;
+  }
+
+  .soCell {
+    min-width: 0;
+    padding: 6px 2px;
+  }
+
+  .soCell b,
+  .soCell em {
+    font-size: .72rem;
+  }
+
   .bracket {
     display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: var(--space-3);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+    gap: var(--space-2);
     margin: 0;
     padding: 0 0 var(--space-3);
     overflow: visible;
@@ -2705,6 +2810,7 @@ header h1 {
   .bcol {
     min-width: 0;
     width: 100%;
+    min-height: 0;
     scroll-snap-align: none;
   }
 
@@ -2715,8 +2821,32 @@ header h1 {
   }
 
   .bmatch {
-    min-height: 72px;
-    margin-bottom: var(--space-2);
+    min-height: 58px;
+    margin-bottom: 6px;
+    padding: 7px;
+  }
+
+  .bteam {
+    gap: 4px;
+    padding: 1px 0;
+    font-size: .68rem;
+    line-height: 1.25;
+  }
+
+  .bname {
+    gap: 4px;
+  }
+
+  .bdate {
+    margin-top: 4px;
+    font-size: .62rem;
+  }
+
+  .bracket .bhdr {
+    margin-bottom: 6px;
+    padding: 2px var(--space-1);
+    border-radius: 5px;
+    font-size: .72rem;
   }
 
   .bfinalblock {
