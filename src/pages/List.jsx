@@ -6,16 +6,37 @@ const TABS = [['standings', '📊 小组积分'], ['group', '📅 小组赛程']
 
 function MatchRow({ m }) {
   const pr = m.prediction
+  const predSegs = pr
+    ? [
+      ['home', pr.x12.home, nm(m.home)],
+      ['draw', pr.x12.draw, '平'],
+      ['away', pr.x12.away, nm(m.away)]
+    ]
+    : []
   return (
-    <Link to={`/m/${m.id}`} className="mrow">
-      <div className="mtime">{bjTime(m.kickoff)}{m.group && <span className="mg">{m.group}</span>}</div>
-      <div className="mteams">{nm(m.home)} <span className="dim">vs</span> {nm(m.away)}</div>
-      <div className="mright">
-        {m.finished && <span className="score">{m.result.h}-{m.result.a}</span>}
-        {pr
-          ? <span className="pred">{pct(pr.x12.home)}/{pct(pr.x12.draw)}/{pct(pr.x12.away)}{!m.finished && ` · ${pr.topScores[0].score}`}</span>
-          : (!m.finished && <span className="dim">球队待定</span>)}
+    <Link to={`/m/${m.id}`} className={`mrow ${m.finished ? 'is-final' : 'is-upcoming'}`}>
+      <div className="mtime">
+        <span className="kick">{bjTime(m.kickoff)}</span>
+        {m.group && <span className="mg">{m.group}</span>}
         <span className={`badge ${m.finished ? 'fin' : 'up'}`}>{m.finished ? '完赛' : '未赛'}</span>
+      </div>
+      <div className="mteams">
+        <span className="mteam home">{nm(m.home)}</span>
+        <span className="dim">vs</span>
+        <span className="mteam away">{nm(m.away)}</span>
+      </div>
+      <div className="mright">
+        {m.finished
+          ? <span className="score">{m.result.h}-{m.result.a}</span>
+          : (pr
+            ? <span className="pred" title={`${nm(m.home)} ${pct(pr.x12.home)} / 平 ${pct(pr.x12.draw)} / ${nm(m.away)} ${pct(pr.x12.away)}`}>
+              {predSegs.map(([k, v, lbl]) => (
+                <span className={`pseg ${k}`} style={{ width: `${v * 100}%` }} key={k}>
+                  <em>{lbl}</em><b>{pct(v)}</b>
+                </span>
+              ))}
+            </span>
+            : <span className="dim">球队待定</span>)}
       </div>
     </Link>
   )
@@ -37,9 +58,9 @@ function ByDate({ matches }) {
 
 function BCard({ m }) {
   return (
-    <Link to={`/m/${m.id}`} className="bmatch">
-      <div className="bteam">{nm(m.home)}{m.result && <b>{m.result.h}</b>}</div>
-      <div className="bteam">{nm(m.away)}{m.result && <b>{m.result.a}</b>}</div>
+    <Link to={`/m/${m.id}`} className={`bmatch ${m.result ? 'done' : 'todo'}`}>
+      <div className="bteam"><span className="bname">{nm(m.home)}</span>{m.result && <b>{m.result.h}</b>}</div>
+      <div className="bteam"><span className="bname">{nm(m.away)}</span>{m.result && <b>{m.result.a}</b>}</div>
       <div className="bdate">{bjDate(m.kickoff || m.date + 'T00:00:00Z').slice(5)}</div>
     </Link>
   )
@@ -49,9 +70,9 @@ function Bracket({ bracket }) {
   const cols = bracket.filter(r => !['final', 'third_place_playoff'].includes(r.round))
   const finals = bracket.filter(r => ['final', 'third_place_playoff'].includes(r.round))
   const half = which => (
-    <div className="bracket">
-      {cols.map(r => (
-        <div className="bcol" key={r.round}>
+    <div className={`bracket ${which}`}>
+      {cols.map((r, i) => (
+        <div className={`bcol r${i} ${r.round}`} key={r.round}>
           <div className="bhdr">{r.label}</div>
           {r.matches.filter(m => m.half === which).map(m => <BCard m={m} key={m.id} />)}
         </div>
@@ -59,12 +80,18 @@ function Bracket({ bracket }) {
     </div>
   )
   return (
-    <div>
-      <div className="bhalf">上半区</div>{half('top')}
-      <div className="bfinals">{finals.map(r => (
-        <div key={r.round}><div className="bhdr">{r.label}</div>{r.matches.map(m => <BCard m={m} key={m.id} />)}</div>
-      ))}</div>
-      <div className="bhalf">下半区</div>{half('bottom')}
+    <div className="bracketwrap">
+      <section className="bsection">
+        <div className="bhalf">上半区</div>{half('top')}
+      </section>
+      <section className="bfinalblock">
+        <div className="bfinals">{finals.map(r => (
+          <div className={`bfcol ${r.round}`} key={r.round}><div className="bhdr">{r.label}</div>{r.matches.map(m => <BCard m={m} key={m.id} />)}</div>
+        ))}</div>
+      </section>
+      <section className="bsection">
+        <div className="bhalf">下半区</div>{half('bottom')}
+      </section>
     </div>
   )
 }
@@ -97,7 +124,7 @@ export default function List() {
           {Object.entries(data.standings).map(([gn, teams]) => (
             <div className="gcard" key={gn}><b>组 {gn}</b>
               <table className="st"><thead><tr><th>队</th><th>场</th><th>胜平负</th><th>进失</th><th>分</th></tr></thead>
-                <tbody>{teams.map((t, i) => <tr key={t.team} className={i < 2 ? 'qual' : ''}><td>{nm(t.team)}</td><td>{t.p}</td><td>{t.w}-{t.d}-{t.l}</td><td>{t.gf}:{t.ga}</td><td><b>{t.pts}</b></td></tr>)}</tbody>
+                <tbody>{teams.map((t, i) => <tr key={t.team} className={i < 2 ? 'qual' : ''}><td>{nm(t.team)}</td><td>{t.p}</td><td><span className="formnum win">{t.w}</span>-<span className="formnum draw">{t.d}</span>-<span className="formnum loss">{t.l}</span></td><td>{t.gf}:{t.ga}</td><td><b>{t.pts}</b></td></tr>)}</tbody>
               </table></div>
           ))}
         </div>
