@@ -97,3 +97,29 @@ footer { margin-top: 36px; color: #59616e; font-size: 12px; text-align: center; 
 /* report sections */
 .rsec { margin: 10px 0; } .rsec h4 { margin: 0 0 4px; font-size: 13.5px; color: #7fb0f0; }
 .rsec ul { margin: 0; padding-left: 18px; } .rsec li { margin: 4px 0; }
+
+/* compare bar */
+.cmp { margin: 9px 0; }
+.cmplab { display: flex; justify-content: space-between; font-size: 12.5px; margin-bottom: 3px; }
+.cmplab span { color: #8b949e; } .cmplab b { color: #e6edf3; }
+.cmpbar { display: flex; height: 14px; border-radius: 7px; overflow: hidden; background: #0d1320; }
+.cmpbar .ch { background: linear-gradient(90deg, #1e3a8a, #3b82f6); } .cmpbar .ca { background: linear-gradient(90deg, #b45309, #f0883e); margin-left: auto; }
+.pills i { display: inline-block; background: #16294a; color: #9fd0ff; border-radius: 20px; padding: 1px 9px; margin: 2px 4px 2px 0; font-size: 11.5px; font-style: normal; }
+.rb { display: inline-block; color: #fff; border-radius: 6px; padding: 0 6px; margin-left: 5px; font-size: 11.5px; font-weight: 700; }
+
+.forms { display: flex; flex-wrap: wrap; gap: 4px; }
+.formchip b { color: #fff; }
+.rchip, .evchip { display: inline-flex; align-items: center; background: #0d1320; border: 1px solid #1f2940; border-radius: 7px; padding: 3px 8px; font-size: 12px; }
+
+.cobox { background: #0d1320; border: 1px solid #1c2438; border-radius: 9px; padding: 10px 12px; margin: 9px 0; }
+.cobox .k { margin-bottom: 6px; }
+.corow { display: flex; align-items: center; justify-content: space-between; font-size: 12.5px; padding: 3px 0; gap: 8px; }
+.coh { color: #7fb0f0; flex: 1; } .coa { color: #f0a875; flex: 1; text-align: right; } .coopp { color: #8b949e; font-size: 11.5px; }
+.corow em { color: #8b949e; font-style: normal; margin: 0 4px; }
+.oddsrow { display: flex; gap: 10px; margin-top: 8px; } .oddsrow > div { flex: 1; background: #0d1320; border: 1px solid #1c2438; border-radius: 9px; padding: 8px 11px; font-size: 13px; }
+.bigscore span { color: #59616e; }
+
+/* bracket halves */
+.bhalf { font-size: 14px; color: #9fb4d8; font-weight: 700; margin: 16px 0 8px; padding-left: 4px; border-left: 3px solid #2f6f9e; }
+.bfinals { display: flex; gap: 14px; justify-content: center; margin: 14px 0; }
+.bfinals .bhdr { text-align: center; }

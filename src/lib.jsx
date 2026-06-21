@@ -11,7 +11,27 @@ export function useData() {
 }
 
 export const pct = x => `${Math.round((x || 0) * 100)}%`
-export const fmtKick = k => k ? k.slice(5, 16).replace('T', ' ') : ''
+// 北京时间 (UTC+8)
+export const bj = k => k ? new Date(k).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false }).replace(/\//g, '-') : ''
+export const bjTime = k => k ? new Date(k).toLocaleTimeString('zh-CN', { timeZone: 'Asia/Shanghai', hour: '2-digit', minute: '2-digit', hour12: false }) : ''
+export const bjDate = k => k ? new Date(k).toLocaleDateString('sv-SE', { timeZone: 'Asia/Shanghai' }) : ''
+export const fmtKick = bj
+
+// 双向对比条（蓝=主 橙=客）
+export function CompareBar({ label, h, a, hn, an, suffix }) {
+  const t = (Math.abs(h) + Math.abs(a)) || 1
+  return (
+    <div className="cmp">
+      <div className="cmplab"><b>{h}{suffix}</b><span>{label}</span><b>{a}{suffix}</b></div>
+      <div className="cmpbar">
+        <i className="ch" style={{ width: `${Math.abs(h) / t * 100}%` }} />
+        <i className="ca" style={{ width: `${Math.abs(a) / t * 100}%` }} />
+      </div>
+    </div>
+  )
+}
+export const Pills = ({ tags }) => <span className="pills">{(tags || []).map((t, i) => <i key={i}>{t}</i>)}</span>
+export const Rating = ({ r }) => <span className="rb" style={{ background: r >= 7.5 ? '#1f6f3f' : r >= 6.8 ? '#3a5f2a' : r >= 6 ? '#6a5a1f' : '#5a2b2b' }}>{r.toFixed(1)}</span>
 
 // 1X2 probability tri-bar
 export function ProbBar({ p, home, away }) {

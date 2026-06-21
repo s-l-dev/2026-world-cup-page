@@ -1,19 +1,21 @@
 import React, { useState, useMemo } from 'react'
 import { Link } from 'react-router-dom'
-import { useData, pct, fmtKick } from '../lib.jsx'
+import { useData, pct, bj, bjTime, bjDate } from '../lib.jsx'
 
 const TABS = [['standings', '📊 小组积分'], ['group', '📅 小组赛程'], ['ko', '🏆 淘汰赛'], ['bracket', '🗺️ 晋级图']]
 
 function MatchRow({ m }) {
   return (
-    <Link to={`/m/${m.id}`} className="mrow" key={m.id}>
-      <div className="mtime">{m.kickoff.slice(11, 16)}{m.group && <span className="mg">{m.group}</span>}</div>
+    <Link to={`/m/${m.id}`} className="mrow">
+      <div className="mtime">{bjTime(m.kickoff)}{m.group && <span className="mg">{m.group}</span>}</div>
       <div className="mteams">{m.home} <span className="dim">vs</span> {m.away}</div>
       <div className="mright">
         {m.finished
           ? <span className="score">{m.result.h}-{m.result.a}</span>
-          : (m.prediction && <span className="pred">{pct(m.prediction.x12.home)}/{pct(m.prediction.x12.draw)}/{pct(m.prediction.x12.away)} · {m.prediction.topScores[0].score}</span>)}
-        <span className={`badge ${m.finished ? 'fin' : 'up'}`}>{m.finished ? '完赛' : '预测'}</span>
+          : (m.prediction
+            ? <span className="pred">{pct(m.prediction.x12.home)}/{pct(m.prediction.x12.draw)}/{pct(m.prediction.x12.away)} · {m.prediction.topScores[0].score}</span>
+            : <span className="dim">球队待定</span>)}
+        <span className={`badge ${m.finished ? 'fin' : 'up'}`}>{m.finished ? '完赛' : '未赛'}</span>
       </div>
     </Link>
   )
@@ -22,34 +24,47 @@ function MatchRow({ m }) {
 function ByDate({ matches }) {
   const days = useMemo(() => {
     const g = {}
-    matches.forEach(m => { const d = m.kickoff.slice(0, 10); (g[d] ||= []).push(m) })
+    matches.forEach(m => { const d = bjDate(m.kickoff); (g[d] ||= []).push(m) })
     return Object.entries(g).sort()
   }, [matches])
+  return <>{days.map(([d, ms]) => (
+    <div className="dayblock" key={d}>
+      <div className="dayhdr">{d} <span className="dim">· {ms.length} 场</span></div>
+      <div className="list">{ms.map(m => <MatchRow m={m} key={m.id} />)}</div>
+    </div>
+  ))}</>
+}
+
+function BCard({ m }) {
   return (
-    <>{days.map(([d, ms]) => (
-      <div className="dayblock" key={d}>
-        <div className="dayhdr">{d} <span className="dim">· {ms.length} 场</span></div>
-        <div className="list">{ms.map(m => <MatchRow m={m} key={m.id} />)}</div>
-      </div>
-    ))}</>
+    <Link to={`/m/${m.id}`} className="bmatch">
+      <div className="bteam">{m.home}{m.result && <b>{m.result.h}</b>}</div>
+      <div className="bteam">{m.away}{m.result && <b>{m.result.a}</b>}</div>
+      <div className="bdate">{bjDate(m.kickoff || m.date + 'T00:00:00Z').slice(5)}</div>
+    </Link>
   )
 }
 
 function Bracket({ bracket }) {
-  return (
+  const cols = bracket.filter(r => !['final', 'third_place_playoff'].includes(r.round))
+  const finals = bracket.filter(r => ['final', 'third_place_playoff'].includes(r.round))
+  const half = which => (
     <div className="bracket">
-      {bracket.map(r => (
+      {cols.map(r => (
         <div className="bcol" key={r.round}>
           <div className="bhdr">{r.label}</div>
-          {r.matches.map(m => (
-            <Link to={`/m/${m.id}`} className="bmatch" key={m.id}>
-              <div className="bteam">{m.home}{m.result && <b>{m.result.h}</b>}</div>
-              <div className="bteam">{m.away}{m.result && <b>{m.result.a}</b>}</div>
-              <div className="bdate">{m.date.slice(5)}</div>
-            </Link>
-          ))}
+          {r.matches.filter(m => m.half === which).map(m => <BCard m={m} key={m.id} />)}
         </div>
       ))}
+    </div>
+  )
+  return (
+    <div>
+      <div className="bhalf">上半区</div>{half('top')}
+      <div className="bfinals">{finals.map(r => (
+        <div key={r.round}><div className="bhdr">{r.label}</div>{r.matches.map(m => <BCard m={m} key={m.id} />)}</div>
+      ))}</div>
+      <div className="bhalf">下半区</div>{half('bottom')}
     </div>
   )
 }
@@ -69,11 +84,10 @@ export default function List() {
     <div className="wrap">
       <header>
         <h1>🏆 世界杯 2026 · 数据与预测</h1>
-        <div className="sub">更新 {data.generated_at?.slice(0, 16).replace('T', ' ')} UTC</div>
+        <div className="sub">更新 {bj(data.generated_at)}（北京时间）</div>
       </header>
       <div className="kpis"><div><b>{fin}</b>已完赛</div><div><b>{matches.length - fin}</b>未开赛</div><div><b>{matches.length}</b>总场次</div></div>
-      <div className="note">⚠️ 模型预测仅供分析参考；"价值"多为模型与市场背离；影子模式，非下注建议。</div>
-
+      <div className="note">⚠️ 模型预测仅供分析参考；"价值"多为模型与市场背离；影子模式，非下注建议。时间为北京时间。</div>
       <div className="tabs">{TABS.map(([k, lbl]) => <button key={k} className={tab === k ? 'on' : ''} onClick={() => setTab(k)}>{lbl}</button>)}</div>
 
       {tab === 'standings' && (
@@ -92,7 +106,6 @@ export default function List() {
       </>}
       {tab === 'ko' && <ByDate matches={koMatches} />}
       {tab === 'bracket' && <Bracket bracket={data.bracket} />}
-
       <footer>世界杯 2026 数据看板 · 模型+球探，仅供分析</footer>
     </div>
   )
