@@ -499,6 +499,20 @@ function OddsBoard({ m }) {
   )
 }
 
+// collapsible card: clickable header toggles the body (info layering for the long detail page)
+function Collapse({ title, sub, cls = '', defaultOpen = false, children }) {
+  const [open, setOpen] = useState(defaultOpen)
+  return (
+    <section className={`card collapse ${cls} ${open ? 'open' : 'closed'}`}>
+      <button type="button" className="collapse-h" onClick={() => setOpen(o => !o)} aria-expanded={open}>
+        <span className="ct">{title}{sub && <span className="dim small"> {sub}</span>}</span>
+        <span className="chev">{open ? '收起 ▾' : '展开 ▸'}</span>
+      </button>
+      {open && <div className="collapse-b">{children}</div>}
+    </section>
+  )
+}
+
 export default function Detail() {
   const { id } = useParams()
   const data = useData()
@@ -542,10 +556,9 @@ export default function Detail() {
       )}
 
       {sc.report && (
-        <section className="card report">
-          <h3>球探报告{m.finished && <span className="dim small"> · 赛前留存</span>}</h3>
+        <Collapse title="球探报告" sub={m.finished ? '· 赛前留存' : ''} cls="report" defaultOpen={!m.finished}>
           <ReportBody secs={sc.report} />
-        </section>
+        </Collapse>
       )}
 
       {p && (
@@ -582,8 +595,7 @@ export default function Detail() {
 
       <MarketCompare m={m} />
 
-      <section className="card intel">
-        <h3>赛前情报</h3>
+      <Collapse title="赛前情报" cls="intel" defaultOpen={false}>
         <div className="row"><span className="k">{tn(m.home)} 近况</span><Form list={sc.formHome} /></div>
         <div className="row"><span className="k">{tn(m.away)} 近况</span><Form list={sc.formAway} /></div>
         <CompareBar label="场均净 xG（进攻 − 防守）" h={sc.xgFormHome} a={sc.xgFormAway} hn={nm(m.home)} an={nm(m.away)} />
@@ -607,11 +619,10 @@ export default function Detail() {
           {sc.injAway.length > 0 && <div>{tn(m.away)}: {sc.injAway.map(x => `${x.name}(${x.status})`).join(', ')}</div>}
         </div></div>}
         <OddsBoard m={m} />
-      </section>
+      </Collapse>
 
       {m.finished && ts && (
-        <section className="card stats">
-          <h3>赛后关键数据</h3>
+        <Collapse title="赛后关键数据" cls="stats" defaultOpen={false}>
           {ts.home && ts.away && <>
             <CompareBar label="xG 预期进球值（按实际射门质量）" h={+(ts.home.x || 0).toFixed(2)} a={+(ts.away.x || 0).toFixed(2)} hn={nm(m.home)} an={nm(m.away)} />
             <CompareBar label="射门" h={ts.home.s || 0} a={ts.away.s || 0} hn={nm(m.home)} an={nm(m.away)} />
@@ -625,7 +636,7 @@ export default function Detail() {
           <Zones zones={m.zones} home={m.home} away={m.away} />
           <ShotMap shots={m.shotmap} home={m.home} away={m.away} />
           <Momentum values={m.momentum} />
-        </section>
+        </Collapse>
       )}
 
       <footer>仅供分析 · 影子模式</footer>

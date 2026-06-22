@@ -2918,3 +2918,17 @@ header h1 {
   background: var(--win-soft); color: var(--win-text); font-size: .62rem; font-weight: 800;
 }
 .tabs button:disabled { opacity: .4; cursor: not-allowed; }
+
+/* ===== collapsible cards (detail info layering) ===== */
+.card.collapse { padding-top: 0; padding-bottom: 0; }
+.card.collapse.closed { padding-bottom: 0; }
+.card.collapse.open { padding-bottom: var(--card-pad); }
+.collapse-h {
+  display: flex; align-items: center; justify-content: space-between; gap: var(--space-3);
+  width: 100%; padding: var(--space-4) 0; background: none; border: 0; cursor: pointer;
+  color: var(--text); font: inherit; text-align: left;
+}
+.collapse-h .ct { font-size: var(--fs-lg); font-weight: 800; }
+.collapse-h .chev { color: var(--muted); font-size: var(--fs-xs); font-weight: 700; white-space: nowrap; }
+.card.collapse.closed .collapse-h { padding-bottom: var(--space-4); }
+.collapse-b { padding-bottom: 2px; }
