@@ -2901,3 +2901,20 @@ header h1 {
 .oppitem .fres.l { background: var(--danger-soft); color: var(--danger-text); }
 .oppitem .fres.d { background: var(--draw-soft); color: var(--text-soft); }
 .oppitem em { color: var(--muted); font-style: normal; font-size: var(--fs-xs); }
+
+/* ===== 逐家赔率页 ===== */
+.oddslink { float: right; font-size: var(--fs-xs); font-weight: 700; color: var(--home); }
+.booktbl { min-width: 540px; }
+.booktbl td.sel { white-space: nowrap; }
+.booktbl td.vig { color: var(--muted); font-variant-numeric: tabular-nums; }
+.booktbl td.np { color: var(--text-soft); }
+.booktbl td.bp { color: var(--win-text); font-weight: 800; }
+.booktbl tr.sharp { background: rgb(0 196 106 / .07); }
+.booktbl tr.srow { background: rgb(255 255 255 / .04); }
+.booktbl tr.srow td.sel { font-weight: 800; color: var(--text); }
+.booktbl tr.srow.model td.sel { color: var(--home-text); }
+.booktbl .tag {
+  margin-left: 6px; padding: 0 6px; border-radius: var(--radius-pill);
+  background: var(--win-soft); color: var(--win-text); font-size: .62rem; font-weight: 800;
+}
+.tabs button:disabled { opacity: .4; cursor: not-allowed; }

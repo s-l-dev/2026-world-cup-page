@@ -49,6 +49,16 @@ export function useData() {
   return data
 }
 
+let _oddsCache = null
+export function useOdds() {
+  const [data, setData] = useState(_oddsCache)
+  useEffect(() => {
+    if (_oddsCache) return
+    fetch('/odds.json').then(r => r.json()).then(d => { _oddsCache = d; if (d.teams) _teams = { ..._teams, ...d.teams }; setData(d) })
+  }, [])
+  return data
+}
+
 export const pct = x => `${Math.round((x || 0) * 100)}%`
 // 北京时间 (UTC+8)
 export const bj = k => k ? new Date(k).toLocaleString('zh-CN', { timeZone: 'Asia/Shanghai', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false }).replace(/\//g, '-') : ''
