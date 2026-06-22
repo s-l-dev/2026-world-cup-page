@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { useParams, useNavigate, useLocation, Link } from 'react-router-dom'
-import { useData, pct, bj, nm, tn, ProbBar, ShotMap, Momentum, Zones, CompareBar, Pills, Rating, Crest, TeamName } from '../lib.jsx'
+import { useData, pct, bj, nm, tn, ProbBar, ShotMap, Momentum, Zones, CompareBar, MetricBar, Pills, Rating, Crest, TeamName } from '../lib.jsx'
 
 // Back to the previous view (restores the list tab/filters); falls back to home on deep-link.
 function BackLink({ label = '← 返回赛程' }) {
@@ -558,6 +558,15 @@ export default function Detail() {
       {sc.report && (
         <Collapse title="球探报告" sub={m.finished ? '· 赛前留存' : ''} cls="report" defaultOpen={!m.finished}>
           <ReportBody secs={sc.report} />
+        </Collapse>
+      )}
+
+      {(sc.metrics?.length > 0 || sc.zonesHome) && (
+        <Collapse title="📊 数据对比" sub="蓝=主 橙=客 绿=更优" cls="viz" defaultOpen>
+          {sc.metrics?.map((r, i) => <MetricBar key={i} row={r} />)}
+          {sc.zonesHome && sc.zonesAway && <Zones zones={{ home: sc.zonesHome, away: sc.zonesAway }} home={m.home} away={m.away} label="进攻区域分布（左/中/右）" />}
+          {sc.defZonesHome && sc.defZonesAway && <Zones zones={{ home: sc.defZonesHome, away: sc.defZonesAway }} home={m.home} away={m.away} label="防守失守区域（越高=该侧越常被攻）" />}
+          <div className="dim small">本届实测均值（多为小样本，参考为主）；绿色 = 该项数值更优（已考虑「越低越好」的项如失 xG、PPDA）。</div>
         </Collapse>
       )}
 

@@ -138,7 +138,7 @@ export function Momentum({ values }) {
   )
 }
 
-export function Zones({ zones, home, away }) {
+export function Zones({ zones, home, away, label = '进攻区域' }) {
   if (!zones || (!zones.home && !zones.away)) return null
   const bar = (z, tid) => z ? (
     <div className="zrow"><span className="ztid">{tn(tid)}</span>
@@ -148,5 +148,22 @@ export function Zones({ zones, home, away }) {
         <i style={{ width: `${z.right}%`, background: '#8a5a1f' }}>{z.right} 右</i>
       </div></div>
   ) : null
-  return <div className="block"><div className="lbl">进攻区域</div>{bar(zones.home, home)}{bar(zones.away, away)}</div>
+  return <div className="block"><div className="lbl">{label}</div>{bar(zones.home, home)}{bar(zones.away, away)}</div>
+}
+
+// home-vs-away metric bar; highlights the better side per `better` ('high'|'low')
+export function MetricBar({ row }) {
+  const { label, h, a, better = 'high', suffix = '' } = row
+  const t = (Math.abs(h) + Math.abs(a)) || 1
+  const hWin = better === 'low' ? h < a : h > a
+  const aWin = better === 'low' ? a < h : a > h
+  return (
+    <div className="cmp">
+      <div className="cmplab"><b className={hWin ? 'win' : ''}>{h}{suffix}</b><span>{label}</span><b className={aWin ? 'win' : ''}>{a}{suffix}</b></div>
+      <div className="cmpbar">
+        <i className="ch" style={{ width: `${Math.abs(h) / t * 100}%` }} />
+        <i className="ca" style={{ width: `${Math.abs(a) / t * 100}%` }} />
+      </div>
+    </div>
+  )
 }

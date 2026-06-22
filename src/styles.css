@@ -2932,3 +2932,8 @@ header h1 {
 .collapse-h .chev { color: var(--muted); font-size: var(--fs-xs); font-weight: 700; white-space: nowrap; }
 .card.collapse.closed .collapse-h { padding-bottom: var(--space-4); }
 .collapse-b { padding-bottom: 2px; }
+
+/* ===== 数据对比：更优一侧高亮 ===== */
+.cmp .cmplab b.win { color: var(--win-text); }
+.cmp .cmplab b.win::after { content: ' ▸'; font-size: .7em; }
+.card.viz .block { margin-top: var(--space-3); }
