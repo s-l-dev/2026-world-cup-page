@@ -14,7 +14,7 @@ function MatchRow({ m }) {
     ]
     : []
   return (
-    <Link to={`/m/${m.id}`} className={`mrow ${m.finished ? 'is-final' : 'is-upcoming'}`}>
+    <Link to={`/m/${m.id}`} target="_blank" rel="noopener" className={`mrow ${m.finished ? 'is-final' : 'is-upcoming'}`}>
       <div className="mtime">
         <span className="kick">{bjTime(m.kickoff)}</span>
         {m.group && <span className="mg">{m.group}</span>}
@@ -58,7 +58,7 @@ function ByDate({ matches }) {
 
 function BCard({ m }) {
   return (
-    <Link to={`/m/${m.id}`} className={`bmatch ${m.result ? 'done' : 'todo'}`}>
+    <Link to={`/m/${m.id}`} target="_blank" rel="noopener" className={`bmatch ${m.result ? 'done' : 'todo'}`}>
       <div className="bteam"><span className="bname"><Crest code={m.home} className="tiny" />{nm(m.home)}</span>{m.result && <b>{m.result.h}</b>}</div>
       <div className="bteam"><span className="bname"><Crest code={m.away} className="tiny" />{nm(m.away)}</span>{m.result && <b>{m.result.a}</b>}</div>
       <div className="bdate">{bjDate(m.kickoff || m.date + 'T00:00:00Z').slice(5)}</div>

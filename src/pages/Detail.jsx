@@ -419,7 +419,7 @@ function MarketCompare({ m }) {
   return (
     <section className="card market">
       <h3>💰 模型 vs 市场 <span className="dim small">下注参考 · 影子模式</span>
-        <Link className="oddslink" to={`/odds/${m.id}`}>逐家赔率 →</Link></h3>
+        <Link className="oddslink" to={`/odds/${m.id}`} target="_blank" rel="noopener">逐家赔率 →</Link></h3>
       {mk.h2h && (
         <div className="mblock">
           <div className="mlabel">胜平负 1X2 <span className="dim">· {mk.h2h.books} 家均盘</span></div>
