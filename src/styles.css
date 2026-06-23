@@ -3379,3 +3379,21 @@ header h1 {
 .cmp .cmplab b.win { color: var(--win-text); }
 .cmp .cmplab b.win::after { content: ' ▸'; font-size: .7em; }
 .card.viz .block { margin-top: var(--space-3); }
+
+/* ===== "?" hint ===== */
+.tbl-head { display: flex; align-items: center; gap: 6px; margin: var(--space-3) 0 var(--space-1); color: var(--muted); font-size: var(--fs-xs); font-weight: 700; }
+.hint { position: relative; display: inline-flex; }
+.hint-q {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 16px; height: 16px; padding: 0; border-radius: 50%;
+  background: var(--surface-strong); color: var(--text-soft);
+  border: 1px solid var(--border); font-size: 11px; font-weight: 800; line-height: 1; cursor: pointer;
+}
+.hint-q:hover { color: var(--text); border-color: var(--border-strong); }
+.hint-pop {
+  position: absolute; top: 22px; left: 0; z-index: 20;
+  width: min(78vw, 320px); padding: 10px 12px;
+  background: var(--surface-3); border: 1px solid var(--border-strong);
+  border-radius: var(--radius-md); box-shadow: var(--shadow-md);
+  color: var(--text-soft); font-size: var(--fs-xs); font-weight: 400; line-height: 1.6; cursor: pointer;
+}

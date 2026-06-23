@@ -19,6 +19,18 @@ const cell = (value, className = '') => ({ value, className })
 const num = value => cell(value ?? '—', 'num')
 const signed = value => cell(value ?? '—', `num ${String(value || '').trim().startsWith('+') ? 'pos' : String(value || '').trim().startsWith('-') ? 'neg' : ''}`)
 
+// click-to-toggle "?" explainer
+function Hint({ children }) {
+  const [open, setOpen] = useState(false)
+  return (
+    <span className="hint">
+      <button type="button" className="hint-q" aria-label="说明" onClick={() => setOpen(o => !o)}>?</button>
+      {open && <span className="hint-pop" onClick={() => setOpen(false)}>{children}</span>}
+    </span>
+  )
+}
+const MEAN_HINT = '进攻 xG = 该队本届场均创造的 xG（FotMob 实测）；对手防守 xG = 对手本届场均被创造的 xG。差值 = 进攻 − 对手防守：正 = 你创造的多于对手通常允许的（进攻有机会），负 = 被压制，≈0 均衡。⚠️ 未做对手强度校正、小样本，仅作过程参考；对手校正后的版本见上方「模型校正」的预测进球 λ。'
+
 const statFrom = (text, key) => text.match(new RegExp(`${key}([+-]?\\d+(?:\\.\\d+)?)`))?.[1] ?? '—'
 const goalsFrom = text => text.match(/(\d+)球/)?.[1] ?? '0'
 const ratingFrom = text => text.match(/评分([+-]?\d+(?:\.\d+)?)/)?.[1] ?? '—'
@@ -174,6 +186,7 @@ function renderAttackDefense(lines) {
     if (verdict) modelCallouts.push(`模型校正后：${verdict}`)
   }
   if (mean) {
+    tables.push(<div key="mean-h" className="tbl-head">本届均值（未校正）<Hint>{MEAN_HINT}</Hint></div>)
     tables.push(<ReportTable key="mean" columns={['本届对位', '进攻xG', '对手防守xG', '差值']} rows={[
       [cell(`${tn(mean[1])} 进攻 vs ${tn(mean[3])} 防守`, 'sel'), num(mean[2]), num(mean[4]), signed(mean[5])],
       [cell(`${tn(mean[6])} 进攻 vs ${tn(mean[8])} 防守`, 'sel'), num(mean[7]), num(mean[9]), signed(mean[10])],
