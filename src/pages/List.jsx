@@ -42,12 +42,16 @@ function MatchRow({ m }) {
   )
 }
 
-function ByDate({ matches }) {
+function ByDate({ matches, reverse = false }) {
   const days = useMemo(() => {
     const g = {}
     matches.forEach(m => { const d = bjDate(m.kickoff); (g[d] ||= []).push(m) })
-    return Object.entries(g).sort()
-  }, [matches])
+    const dir = reverse ? -1 : 1
+    const ent = Object.entries(g)
+    ent.forEach(([, ms]) => ms.sort((x, y) => (x.kickoff < y.kickoff ? -1 : 1) * dir))
+    ent.sort((a, b) => (a[0] < b[0] ? -1 : 1) * dir)
+    return ent
+  }, [matches, reverse])
   return <>{days.map(([d, ms]) => (
     <div className="dayblock" key={d}>
       <div className="dayhdr">{d} <span className="dim">· {ms.length} 场</span></div>
@@ -153,7 +157,7 @@ export default function List() {
               <button key={k} className={st === k ? 'on' : ''} onClick={() => setSt(k)}>{lbl}</button>)}
           </div>
         </div>
-        <ByDate matches={groupMatches} />
+        <ByDate matches={groupMatches} reverse={st === 'fin'} />
       </>}
       {tab === 'ko' && <ByDate matches={koMatches} />}
       {tab === 'bracket' && <Bracket bracket={data.bracket} />}
