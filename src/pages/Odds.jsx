@@ -15,8 +15,17 @@ function Back() {
 // per-bookmaker odds table: model / consensus / best-price summary rows, then each book sorted sharpest-first
 function BookTable({ sels, labels, group, model }) {
   const { books, best, consensus } = group
+  const short = s => {
+    if (s === 'draw') return '平'
+    if (s === 'over' || s === 'under') return labels[s]
+    if (sels.includes('draw')) return s === 'home' ? '主胜' : '客胜'
+    return s === 'home' ? '主队' : '客队'
+  }
+  const priceLabel = s => short(s)
+  const probLabel = s => `去水${short(s)}`
+  const Empty = ({ label }) => <td className="empty" data-label={label}>—</td>
   return (
-    <div className="mtbl-wrap"><table className="mtbl booktbl">
+    <div className="mtbl-wrap bookwrap"><table className={`mtbl booktbl cols-${sels.length}`}>
       <thead><tr>
         <th>博彩</th>
         {sels.map(s => <th key={s}>{labels[s]}</th>)}
@@ -25,25 +34,25 @@ function BookTable({ sels, labels, group, model }) {
       </tr></thead>
       <tbody>
         {model && (
-          <tr className="srow model"><td className="sel">模型</td>
-            {sels.map(s => <td key={s}>—</td>)}<td>—</td>
-            {sels.map(s => <td key={s} className="np">{fpct(model[s])}</td>)}
+          <tr className="srow model"><td className="sel" data-label="来源"><span className="bookname">模型</span></td>
+            {sels.map(s => <Empty key={s} label={priceLabel(s)} />)}<Empty label="抽水" />
+            {sels.map(s => <td key={s} className="np" data-label={probLabel(s)}>{fpct(model[s])}</td>)}
           </tr>
         )}
-        <tr className="srow cons"><td className="sel">共识去水</td>
-          {sels.map(s => <td key={s}>—</td>)}<td>—</td>
-          {sels.map(s => <td key={s} className="np">{fpct(consensus[s])}</td>)}
+        <tr className="srow cons"><td className="sel" data-label="来源"><span className="bookname">共识去水</span></td>
+          {sels.map(s => <Empty key={s} label={priceLabel(s)} />)}<Empty label="抽水" />
+          {sels.map(s => <td key={s} className="np" data-label={probLabel(s)}>{fpct(consensus[s])}</td>)}
         </tr>
-        <tr className="srow best"><td className="sel">最高价 · 比价</td>
-          {sels.map(s => <td key={s} className="bp">{best[s]}</td>)}<td>—</td>
-          {sels.map(s => <td key={s}>—</td>)}
+        <tr className="srow best"><td className="sel" data-label="来源"><span className="bookname">最高价 · 比价</span></td>
+          {sels.map(s => <td key={s} className="bp" data-label={priceLabel(s)}>{best[s]}</td>)}<Empty label="抽水" />
+          {sels.map(s => <Empty key={s} label={probLabel(s)} />)}
         </tr>
         {books.map((b, i) => (
           <tr key={i} className={i === 0 ? 'sharp' : ''}>
-            <td className="sel">{b.bk}{i === 0 && <span className="tag">最锐</span>}</td>
-            {sels.map(s => <td key={s} className={best[s] === b.o[s] ? 'bp' : ''}>{b.o[s]}</td>)}
-            <td className="vig">{fvig(b.vig)}</td>
-            {sels.map(s => <td key={s} className="np">{fpct(b.nv[s])}</td>)}
+            <td className="sel" data-label="博彩"><span className="bookname">{b.bk}</span>{i === 0 && <span className="tag">最锐</span>}</td>
+            {sels.map(s => <td key={s} data-label={priceLabel(s)} className={best[s] === b.o[s] ? 'bp' : ''}>{b.o[s]}</td>)}
+            <td className="vig" data-label="抽水">{fvig(b.vig)}</td>
+            {sels.map(s => <td key={s} className="np" data-label={probLabel(s)}>{fpct(b.nv[s])}</td>)}
           </tr>
         ))}
       </tbody>
@@ -66,32 +75,32 @@ export default function Odds() {
   const mkt = m.markets || {}
 
   return (
-    <div className="wrap detail">
+    <div className="wrap detail odds-page">
       <Back />
       <header className="dhead">
         <h1>{tn(m.home)} <span className="dim">vs</span> {tn(m.away)} · 逐家赔率</h1>
         <div className="sub">{bj(m.kickoff)}（北京时间）· {m.finished ? '已完赛' : '未开赛'} · 开盘价</div>
       </header>
 
-      <div className="tabs">{TABS.map(([k, l]) => {
+      <div className="tabs odds-tabs">{TABS.map(([k, l]) => {
         const avail = k === 'h2h' ? !!mkt.h2h : (mkt[k] || []).length > 0
         return <button key={k} disabled={!avail} className={mk === k ? 'on' : ''} onClick={() => setMk(k)}>{l}</button>
       })}</div>
 
       {mk === 'h2h' && mkt.h2h && (
-        <section className="card">
+        <section className="card odds-card">
           <div className="mlabel">胜平负 1X2 <span className="dim">· {mkt.h2h.books.length} 家 · 按抽水从低到高</span></div>
           <BookTable sels={['home', 'draw', 'away']} labels={mk3} group={mkt.h2h} model={mkt.h2h.model} />
         </section>
       )}
       {mk === 'spreads' && (mkt.spreads || []).map((g, i) => (
-        <section className="card" key={i}>
+        <section className="card odds-card" key={i}>
           <div className="mlabel">让球 {tn(m.home)} {sgn(g.line)} <span className="dim">· {g.books.length} 家</span></div>
           <BookTable sels={['home', 'away']} labels={mk2} group={g} model={g.model} />
         </section>
       ))}
       {mk === 'totals' && (mkt.totals || []).map((g, i) => (
-        <section className="card" key={i}>
+        <section className="card odds-card" key={i}>
           <div className="mlabel">总进球 {g.line} <span className="dim">· {g.books.length} 家</span></div>
           <BookTable sels={['over', 'under']} labels={ou} group={g} model={g.model} />
         </section>

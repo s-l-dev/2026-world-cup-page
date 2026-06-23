@@ -2903,20 +2903,462 @@ header h1 {
 .oppitem em { color: var(--muted); font-style: normal; font-size: var(--fs-xs); }
 
 /* ===== 逐家赔率页 ===== */
-.oddslink { float: right; font-size: var(--fs-xs); font-weight: 700; color: var(--home); }
-.booktbl { min-width: 540px; }
-.booktbl td.sel { white-space: nowrap; }
-.booktbl td.vig { color: var(--muted); font-variant-numeric: tabular-nums; }
-.booktbl td.np { color: var(--text-soft); }
-.booktbl td.bp { color: var(--win-text); font-weight: 800; }
-.booktbl tr.sharp { background: rgb(0 196 106 / .07); }
-.booktbl tr.srow { background: rgb(255 255 255 / .04); }
-.booktbl tr.srow td.sel { font-weight: 800; color: var(--text); }
-.booktbl tr.srow.model td.sel { color: var(--home-text); }
-.booktbl .tag {
-  margin-left: 6px; padding: 0 6px; border-radius: var(--radius-pill);
-  background: var(--win-soft); color: var(--win-text); font-size: .62rem; font-weight: 800;
+.oddslink {
+  float: right;
+  color: var(--home);
+  font-size: var(--fs-xs);
+  font-weight: 700;
 }
+
+.wrap.detail.odds-page {
+  width: min(100%, 1120px);
+}
+
+.odds-page .dhead {
+  margin-bottom: var(--space-3);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid rgb(255 255 255 / .06);
+}
+
+.odds-page .dhead h1 {
+  max-width: 920px;
+}
+
+.odds-page .sub {
+  color: var(--text-soft);
+}
+
+.odds-tabs {
+  margin: var(--space-3) 0 var(--space-4);
+}
+
+.odds-page .tabs button.on {
+  background: linear-gradient(180deg, var(--pitch), var(--pitch-strong));
+  color: var(--pitch-ink);
+}
+
+.odds-card {
+  border-color: rgb(78 161 255 / .18);
+}
+
+.odds-page .odds-card::before {
+  background: linear-gradient(90deg, var(--home), var(--pitch), var(--away));
+}
+
+.odds-page .mlabel {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-1) var(--space-3);
+  margin-bottom: var(--space-3);
+  padding-bottom: var(--space-2);
+  border-bottom: 1px solid rgb(255 255 255 / .06);
+  color: var(--text);
+  font-size: var(--fs-md);
+  font-weight: 900;
+  line-height: 1.35;
+}
+
+.odds-page .mlabel .dim {
+  font-size: var(--fs-xs);
+  font-weight: 700;
+}
+
+.bookwrap {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / .025), transparent),
+    var(--bg-deep);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-xs), inset 0 0 0 1px rgb(0 0 0 / .16);
+}
+
+.booktbl {
+  min-width: 760px;
+  color: var(--text-soft);
+  background: transparent;
+  table-layout: fixed;
+}
+
+.booktbl.cols-2 {
+  min-width: 620px;
+}
+
+.booktbl th,
+.booktbl td {
+  padding: 9px var(--space-3);
+  border-bottom: 1px solid rgb(255 255 255 / .055);
+  text-align: right;
+  vertical-align: middle;
+}
+
+.booktbl th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: rgb(14 18 16 / .96);
+  color: var(--muted);
+  font-size: .68rem;
+  font-weight: 900;
+  letter-spacing: .04em;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+  text-transform: none;
+  white-space: normal;
+}
+
+.booktbl th:first-child,
+.booktbl td.sel {
+  width: 24%;
+  text-align: left;
+}
+
+.booktbl td:not(.sel) {
+  font-family: var(--font-mono);
+  font-size: .75rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.booktbl tbody tr:hover td {
+  background: rgb(78 161 255 / .045);
+}
+
+.booktbl tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.booktbl td.sel {
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.booktbl .bookname {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.booktbl td.vig {
+  color: var(--muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.booktbl td.np {
+  color: var(--text-soft);
+}
+
+.booktbl td.bp {
+  color: var(--win-text);
+  font-weight: 900;
+}
+
+.booktbl td.empty {
+  color: var(--faint);
+}
+
+.booktbl tr.sharp td {
+  background: rgb(0 196 106 / .055);
+}
+
+.booktbl tr.sharp td.sel {
+  box-shadow: inset 3px 0 var(--win);
+  color: var(--win-text);
+}
+
+.booktbl tr.srow td {
+  background: rgb(255 255 255 / .035);
+}
+
+.booktbl tr.srow td.sel {
+  color: var(--text);
+  font-weight: 900;
+}
+
+.booktbl tr.srow.model td.sel {
+  box-shadow: inset 3px 0 var(--home);
+  color: var(--home-text);
+}
+
+.booktbl tr.srow.cons td.sel {
+  box-shadow: inset 3px 0 var(--draw);
+}
+
+.booktbl tr.srow.best td.sel {
+  box-shadow: inset 3px 0 var(--win);
+  color: var(--win-text);
+}
+
+.booktbl .tag {
+  display: inline-flex;
+  align-items: center;
+  min-height: 18px;
+  margin-left: 6px;
+  padding: 0 6px;
+  background: var(--win-soft);
+  border: 1px solid rgb(0 196 106 / .24);
+  border-radius: var(--radius-pill);
+  color: var(--win-text);
+  font-size: .62rem;
+  font-weight: 900;
+  line-height: 1;
+}
+
+.odds-page .note.small {
+  margin-top: var(--space-5);
+  background:
+    linear-gradient(135deg, rgb(0 196 106 / .08), transparent 58%),
+    rgb(255 255 255 / .025);
+  border-color: rgb(0 196 106 / .18);
+  color: var(--text-soft);
+  line-height: 1.7;
+}
+
+@media (min-width: 760px) {
+  .odds-page .tabs button {
+    flex: 1 1 0;
+  }
+}
+
+@media (max-width: 620px) {
+  .wrap.detail.odds-page {
+    padding-right: 10px;
+    padding-left: 10px;
+  }
+
+  .odds-page .dhead {
+    margin-bottom: var(--space-2);
+    padding-bottom: var(--space-2);
+  }
+
+  .odds-page .dhead h1 {
+    font-size: 1.15rem;
+    line-height: 1.25;
+  }
+
+  .odds-page .sub {
+    font-size: .72rem;
+  }
+
+  .odds-tabs {
+    position: sticky;
+    top: 0;
+    z-index: 4;
+    margin: var(--space-2) 0 var(--space-3);
+    backdrop-filter: blur(12px);
+  }
+
+  .odds-page .tabs button {
+    min-height: 34px;
+    font-size: .76rem;
+  }
+
+  .odds-card {
+    margin: var(--space-3) 0;
+    padding: var(--space-3);
+    border-radius: var(--radius-md);
+  }
+
+  .odds-page .mlabel {
+    display: block;
+    margin-bottom: var(--space-2);
+    padding-bottom: var(--space-2);
+    font-size: .92rem;
+  }
+
+  .odds-page .mlabel .dim {
+    display: block;
+    margin-top: 2px;
+    font-size: .68rem;
+    line-height: 1.4;
+  }
+
+  .bookwrap {
+    overflow: visible;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .booktbl,
+  .booktbl.cols-2 {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    background: transparent;
+  }
+
+  .booktbl thead {
+    display: none;
+  }
+
+  .booktbl tbody {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .booktbl tr {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+    padding: var(--space-2);
+    background:
+      linear-gradient(180deg, rgb(255 255 255 / .03), transparent),
+      var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-xs);
+  }
+
+  .booktbl.cols-2 tr {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .booktbl tr.srow {
+    background:
+      linear-gradient(90deg, rgb(78 161 255 / .06), transparent),
+      var(--surface);
+  }
+
+  .booktbl tr.sharp {
+    border-color: rgb(0 196 106 / .28);
+    background:
+      linear-gradient(90deg, rgb(0 196 106 / .1), transparent 70%),
+      var(--surface);
+  }
+
+  .booktbl tr:hover td,
+  .booktbl tr.sharp td,
+  .booktbl tr.srow td {
+    background: transparent;
+  }
+
+  .booktbl th,
+  .booktbl td {
+    width: auto;
+    min-width: 0;
+    padding: 7px var(--space-2);
+    border: 1px solid rgb(255 255 255 / .07);
+    border-radius: var(--radius-xs);
+    text-align: left;
+    white-space: normal;
+  }
+
+  .booktbl td:not(.sel) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 1px;
+    align-content: start;
+    min-height: 48px;
+    overflow: hidden;
+    background: rgb(255 255 255 / .025);
+    color: var(--text);
+    font-size: .73rem;
+    line-height: 1.15;
+  }
+
+  .booktbl td::before {
+    content: attr(data-label);
+    min-width: 0;
+    overflow: hidden;
+    color: var(--muted);
+    font-family: var(--font-sans);
+    font-size: .62rem;
+    font-weight: 900;
+    line-height: 1.25;
+    text-overflow: ellipsis;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .booktbl td.sel {
+    display: flex;
+    grid-column: 1 / -1;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-2);
+    width: auto;
+    min-height: 38px;
+    padding: 8px var(--space-2);
+    background: rgb(255 255 255 / .045);
+    border-color: rgb(255 255 255 / .09);
+    font-size: .82rem;
+    line-height: 1.25;
+    white-space: normal;
+  }
+
+  .booktbl td.sel::before {
+    content: none;
+  }
+
+  .booktbl td.vig {
+    display: flex;
+    grid-column: 1 / -1;
+    align-items: center;
+    justify-content: space-between;
+    min-height: 34px;
+    background: rgb(140 152 170 / .08);
+    color: var(--text-soft);
+  }
+
+  .booktbl td.vig::before {
+    flex: 0 0 auto;
+  }
+
+  .booktbl td.np {
+    color: var(--text-soft);
+  }
+
+  .booktbl td.bp {
+    background: var(--win-soft);
+    border-color: rgb(0 196 106 / .22);
+    color: var(--win-text);
+  }
+
+  .booktbl td.empty {
+    display: none;
+  }
+
+  .booktbl tr.sharp td.sel,
+  .booktbl tr.srow.model td.sel,
+  .booktbl tr.srow.cons td.sel,
+  .booktbl tr.srow.best td.sel {
+    box-shadow: none;
+  }
+
+  .booktbl tr.sharp td.sel {
+    background: var(--win-soft);
+    border-color: rgb(0 196 106 / .24);
+  }
+
+  .booktbl tr.srow.model td.sel {
+    background: var(--home-soft);
+    border-color: rgb(78 161 255 / .24);
+  }
+
+  .booktbl tr.srow.best td.sel {
+    background: var(--win-soft);
+    border-color: rgb(0 196 106 / .24);
+  }
+
+  .booktbl .tag {
+    flex: 0 0 auto;
+    margin-left: auto;
+  }
+
+  .odds-page .note.small {
+    margin-top: var(--space-4);
+    padding: var(--space-3);
+    font-size: .74rem;
+  }
+}
+
 .tabs button:disabled { opacity: .4; cursor: not-allowed; }
 
 /* ===== collapsible cards (detail info layering) ===== */
