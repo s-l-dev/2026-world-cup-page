@@ -31,6 +31,16 @@ function Hint({ children }) {
 }
 const MEAN_HINT = '进攻 xG = 该队本届场均创造的 xG（FotMob 实测）；对手防守 xG = 对手本届场均被创造的 xG。差值 = 进攻 − 对手防守：正 = 你创造的多于对手通常允许的（进攻有机会），负 = 被压制，≈0 均衡。⚠️ 未做对手强度校正、小样本，仅作过程参考；对手校正后的版本见上方「模型校正」的预测进球 λ。'
 
+// data-source tags so the user can tell what's THIS-tournament data vs model/market/historical
+const SRC = { wc: ['本届', 'src-wc'], model: ['模型', 'src-model'], market: ['盘口', 'src-market'], hist: ['历史', 'src-hist'], mix: ['混合', 'src-mix'] }
+const SrcTag = ({ k }) => SRC[k] ? <span className={`srctag ${SRC[k][1]}`} title="数据来源">{SRC[k][0]}</span> : null
+const SEC_SRC = {
+  '模型判断': 'model', '整体研判': 'model', '模型对照': 'model',
+  '近期状态（小样本）': 'wc', '进攻质量（xGOT/绝佳机会）': 'wc', '关键球员与软肋': 'wc',
+  '运气与回归': 'wc', '结果与过程': 'wc', '关键人物与进球': 'wc',
+  '进攻防守对位': 'mix', '打法与球队结构': 'mix',
+}
+
 const statFrom = (text, key) => text.match(new RegExp(`${key}([+-]?\\d+(?:\\.\\d+)?)`))?.[1] ?? '—'
 const goalsFrom = text => text.match(/(\d+)球/)?.[1] ?? '0'
 const ratingFrom = text => text.match(/评分([+-]?\d+(?:\.\d+)?)/)?.[1] ?? '—'
@@ -389,7 +399,7 @@ function ReportSection({ sec }) {
   const rendered = renderReportSection(sec)
   return (
     <div className={`rsec${rendered ? ' has-table' : ''}`}>
-      <h4>{sec.t}</h4>
+      <h4>{sec.t}<SrcTag k={SEC_SRC[sec.t]} /></h4>
       {rendered || <FallbackBullets lines={sec.b || []} />}
     </div>
   )
@@ -431,7 +441,7 @@ function MarketCompare({ m }) {
   const lbl = { home: tn(m.home), draw: '平局', away: tn(m.away) }
   return (
     <section className="card market">
-      <h3>💰 模型 vs 市场 <span className="dim small">下注参考 · 影子模式</span>
+      <h3>💰 模型 vs 市场 <SrcTag k="market" /><span className="dim small">下注参考 · 影子模式</span>
         <Link className="oddslink" to={`/odds/${m.id}`} target="_blank" rel="noopener">逐家赔率 →</Link></h3>
       {mk.h2h && (
         <div className="mblock">
@@ -561,6 +571,13 @@ export default function Detail() {
         </div>
       </header>
 
+      <div className="srclegend">
+        数据来源：<SrcTag k="wc" />本届实测（FotMob）
+        <SrcTag k="model" />长期实力评级（含本届，非纯本届）
+        <SrcTag k="market" />市场盘口
+        <SrcTag k="mix" />混合
+      </div>
+
       {m.finished && sc.postReport && (
         <section className="card report">
           <h3>赛后复盘</h3>
@@ -569,13 +586,13 @@ export default function Detail() {
       )}
 
       {sc.report && (
-        <Collapse title="球探报告" sub={m.finished ? '· 赛前留存' : ''} cls="report" defaultOpen={!m.finished}>
+        <Collapse title={<>球探报告 <SrcTag k="mix" /></>} sub={m.finished ? '· 赛前留存' : ''} cls="report" defaultOpen={!m.finished}>
           <ReportBody secs={sc.report} />
         </Collapse>
       )}
 
       {(sc.metrics?.length > 0 || sc.zonesHome) && (
-        <Collapse title="📊 数据对比" sub="蓝=主 橙=客 绿=更优" cls="viz" defaultOpen>
+        <Collapse title={<>📊 数据对比 <SrcTag k="wc" /></>} sub="蓝=主 橙=客 绿=更优" cls="viz" defaultOpen>
           {sc.metrics?.map((r, i) => <MetricBar key={i} row={r} />)}
           {sc.zonesHome && sc.zonesAway && <Zones zones={{ home: sc.zonesHome, away: sc.zonesAway }} home={m.home} away={m.away} label="进攻区域分布（左/中/右）" />}
           {sc.defZonesHome && sc.defZonesAway && <Zones zones={{ home: sc.defZonesHome, away: sc.defZonesAway }} home={m.home} away={m.away} label="防守失守区域（越高=该侧越常被攻）" />}
@@ -585,7 +602,7 @@ export default function Detail() {
 
       {p && (
         <section className="card prediction">
-          <h3><span>模型预测</span>
+          <h3><span>模型预测 <SrcTag k="model" /></span>
             {hist.length > 1 && (
               <select className="vsel" value={vi} onChange={e => setVi(+e.target.value)}>
                 {hist.map((h, i) => <option key={i} value={i}>{bj(h.at)}{i === 0 ? ' · 最新' : ''}</option>)}
@@ -617,7 +634,7 @@ export default function Detail() {
 
       <MarketCompare m={m} />
 
-      <Collapse title="赛前情报" cls="intel" defaultOpen={false}>
+      <Collapse title={<>赛前情报 <SrcTag k="mix" /></>} cls="intel" defaultOpen={false}>
         <div className="row"><span className="k">{tn(m.home)} 近况</span><Form list={sc.formHome} /></div>
         <div className="row"><span className="k">{tn(m.away)} 近况</span><Form list={sc.formAway} /></div>
         <CompareBar label="场均净 xG（进攻 − 防守）" h={sc.xgFormHome} a={sc.xgFormAway} hn={nm(m.home)} an={nm(m.away)} />
@@ -644,7 +661,7 @@ export default function Detail() {
       </Collapse>
 
       {m.finished && ts && (
-        <Collapse title="赛后关键数据" cls="stats" defaultOpen={false}>
+        <Collapse title={<>赛后关键数据 <SrcTag k="wc" /></>} cls="stats" defaultOpen={false}>
           {ts.home && ts.away && <>
             <CompareBar label="xG 预期进球值（按实际射门质量）" h={+(ts.home.x || 0).toFixed(2)} a={+(ts.away.x || 0).toFixed(2)} hn={nm(m.home)} an={nm(m.away)} />
             <CompareBar label="射门" h={ts.home.s || 0} a={ts.away.s || 0} hn={nm(m.home)} an={nm(m.away)} />
