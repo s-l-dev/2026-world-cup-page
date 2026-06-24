@@ -3414,3 +3414,17 @@ header h1 {
   background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md);
   color: var(--muted); font-size: var(--fs-xs); line-height: 1.7;
 }
+
+/* ===== 球员数据榜 ===== */
+.navlink, .teamlink { color: var(--home); font-weight: 700; }
+.ranktbl { min-width: 620px; }
+.ranktbl td.rank { color: var(--muted); font-weight: 800; }
+.ranktbl th.ply, .ranktbl td.ply { text-align: left; white-space: nowrap; }
+.ranktbl .pname { display: block; color: var(--text); font-weight: 700; }
+.ranktbl .pteam { display: inline-flex; align-items: center; gap: 3px; color: var(--muted); font-size: var(--fs-xs); }
+.ranktbl th.sortable { cursor: pointer; user-select: none; }
+.ranktbl th.sortable.on, .ranktbl td.on { color: var(--win-text); }
+.ranktbl th.sortable.on::after { content: ' ▾'; }
+.players-page .bar input { flex: 1; min-width: 120px; }
+.players-page .bar .sortsel { min-width: 120px; }
+.clearf { margin-left: 8px; background: none; border: 1px solid var(--border); color: var(--home); border-radius: var(--radius-sm); padding: 2px 8px; cursor: pointer; font-size: var(--fs-xs); }

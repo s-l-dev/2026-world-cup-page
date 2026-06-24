@@ -127,7 +127,7 @@ export default function List() {
     <div className="wrap">
       <header>
         <h1>世界杯 2026 数据中心</h1>
-        <div className="sub">更新 {bj(data.generated_at)}（北京时间）</div>
+        <div className="sub">更新 {bj(data.generated_at)}（北京时间） · <Link to="/players" className="navlink">球员数据榜 →</Link></div>
       </header>
       <div className="kpis"><div><b>{fin}</b>已完赛</div><div><b>{matches.length - fin}</b>未开赛</div><div><b>{matches.length}</b>总场次</div></div>
       <div className="note">模型预测仅供分析参考；"价值"多为模型与市场背离；影子模式，非下注建议。时间为北京时间。</div>
@@ -139,7 +139,7 @@ export default function List() {
             <div className="gcard" key={gn}><b>组 {gn}</b>
               <table className="st"><thead><tr><th>队</th><th>场</th><th>胜平负</th><th>进失</th><th>分</th></tr></thead>
                 <tbody>{teams.map((t, i) => <tr key={t.team} className={i < 2 ? 'qual' : ''}>
-                  <td data-label="队"><TeamName code={t.team} /></td>
+                  <td data-label="队"><Link to={`/players?team=${t.team}`} className="teamlink"><TeamName code={t.team} /></Link></td>
                   <td data-label="场">{t.p}</td>
                   <td data-label="胜平负"><span className="formnum win">{t.w}</span>-<span className="formnum draw">{t.d}</span>-<span className="formnum loss">{t.l}</span></td>
                   <td data-label="进失">{t.gf}:{t.ga}</td>
