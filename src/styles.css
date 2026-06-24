@@ -3422,15 +3422,337 @@ header h1 {
 }
 
 /* ===== 球员数据榜 ===== */
-.navlink, .teamlink { color: var(--home); font-weight: 700; }
-.ranktbl { min-width: 620px; }
-.ranktbl td.rank { color: var(--muted); font-weight: 800; }
-.ranktbl th.ply, .ranktbl td.ply { text-align: left; white-space: nowrap; }
-.ranktbl .pname { display: block; color: var(--text); font-weight: 700; }
-.ranktbl .pteam { display: inline-flex; align-items: center; gap: 3px; color: var(--muted); font-size: var(--fs-xs); }
-.ranktbl th.sortable { cursor: pointer; user-select: none; }
-.ranktbl th.sortable.on, .ranktbl td.on { color: var(--win-text); }
-.ranktbl th.sortable.on::after { content: ' ▾'; }
-.players-page .bar input { flex: 1; min-width: 120px; }
-.players-page .bar .sortsel { min-width: 120px; }
-.clearf { margin-left: 8px; background: none; border: 1px solid var(--border); color: var(--home); border-radius: var(--radius-sm); padding: 2px 8px; cursor: pointer; font-size: var(--fs-xs); }
+.navlink,
+.teamlink {
+  color: var(--home);
+  font-weight: 700;
+}
+
+.players-page {
+  width: min(100%, 1120px);
+}
+
+.players-page header {
+  margin-bottom: var(--space-3);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid rgb(255 255 255 / .06);
+}
+
+.players-page .bar {
+  align-items: stretch;
+}
+
+.players-page .bar input {
+  flex: 1 1 220px;
+  min-width: 160px;
+}
+
+.players-page .bar .sortsel {
+  min-width: 150px;
+}
+
+.players-page .mtbl-wrap {
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / .025), transparent),
+    var(--bg-deep);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-xs), inset 0 0 0 1px rgb(0 0 0 / .16);
+}
+
+.ranktbl {
+  min-width: 820px;
+  table-layout: fixed;
+}
+
+.ranktbl th,
+.ranktbl td {
+  padding: 9px var(--space-2);
+}
+
+.ranktbl th:first-child,
+.ranktbl td.rank {
+  width: 48px;
+}
+
+.ranktbl th.ply,
+.ranktbl td.ply {
+  width: 230px;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.ranktbl td.rank {
+  color: var(--muted);
+  font-weight: 900;
+}
+
+.ranktbl .pname {
+  display: block;
+  max-width: 100%;
+  overflow: hidden;
+  color: var(--text);
+  font-weight: 800;
+  text-overflow: ellipsis;
+}
+
+.ranktbl .pteam {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  gap: 4px;
+  overflow: hidden;
+  color: var(--muted);
+  font-size: var(--fs-xs);
+  text-overflow: ellipsis;
+  vertical-align: top;
+}
+
+.ranktbl th.sortable {
+  cursor: pointer;
+  user-select: none;
+}
+
+.ranktbl th.sortable.on,
+.ranktbl td.on {
+  color: var(--win-text);
+}
+
+.ranktbl th.sortable.on::after {
+  content: ' ▾';
+}
+
+.ranktbl tbody tr:nth-child(1) td.rank,
+.ranktbl tbody tr:nth-child(2) td.rank,
+.ranktbl tbody tr:nth-child(3) td.rank {
+  color: var(--win-text);
+}
+
+.clearf {
+  margin-left: 8px;
+  padding: 2px 8px;
+  background: none;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--home);
+  cursor: pointer;
+  font-size: var(--fs-xs);
+}
+
+@media (max-width: 620px) {
+  .players-page {
+    padding-right: 10px;
+    padding-left: 10px;
+  }
+
+  .players-page header {
+    margin-bottom: var(--space-2);
+    padding-bottom: var(--space-2);
+  }
+
+  .players-page header h1 {
+    font-size: 1.16rem;
+    line-height: 1.25;
+  }
+
+  .players-page .sub {
+    font-size: .72rem;
+  }
+
+  .players-page .bar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-2);
+    margin: var(--space-3) 0;
+  }
+
+  .players-page .bar select,
+  .players-page .bar input,
+  .players-page .bar .sortsel {
+    width: 100%;
+    min-width: 0;
+    min-height: 38px;
+  }
+
+  .players-page .mtbl-wrap {
+    overflow: visible;
+    background: transparent;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  .ranktbl {
+    display: block;
+    width: 100%;
+    min-width: 0;
+    background: transparent;
+  }
+
+  .ranktbl thead {
+    display: none;
+  }
+
+  .ranktbl tbody {
+    display: grid;
+    gap: var(--space-2);
+  }
+
+  .ranktbl tr {
+    display: grid;
+    position: relative;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 6px;
+    min-width: 0;
+    padding: 10px;
+    background:
+      linear-gradient(180deg, rgb(255 255 255 / .03), transparent),
+      var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    box-shadow: var(--shadow-xs);
+  }
+
+  .ranktbl tbody tr:nth-child(1),
+  .ranktbl tbody tr:nth-child(2),
+  .ranktbl tbody tr:nth-child(3) {
+    border-color: rgb(0 196 106 / .26);
+    background:
+      linear-gradient(90deg, rgb(0 196 106 / .08), transparent 58%),
+      var(--surface);
+  }
+
+  .ranktbl td {
+    min-width: 0;
+    padding: 7px var(--space-2);
+    border: 1px solid rgb(255 255 255 / .07);
+    border-radius: var(--radius-xs);
+    text-align: left;
+    white-space: normal;
+  }
+
+  .ranktbl td::before {
+    content: attr(data-label);
+    display: block;
+    min-width: 0;
+    overflow: hidden;
+    color: var(--muted);
+    font-family: var(--font-sans);
+    font-size: .6rem;
+    font-weight: 900;
+    line-height: 1.15;
+    text-overflow: ellipsis;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+
+  .ranktbl td.ply {
+    display: grid;
+    grid-column: 1 / -1;
+    grid-template-columns: minmax(0, 1fr);
+    gap: 4px;
+    width: auto;
+    padding: 0 44px var(--space-2) 0;
+    background: transparent;
+    border: 0;
+    border-bottom: 1px solid rgb(255 255 255 / .07);
+    border-radius: 0;
+    text-align: left;
+    white-space: normal;
+  }
+
+  .ranktbl td.ply::before,
+  .ranktbl td.rank::before {
+    content: none;
+  }
+
+  .ranktbl td.rank {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: auto;
+    min-width: 30px;
+    min-height: 24px;
+    padding: 0 var(--space-2);
+    background: var(--surface-strong);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-pill);
+    color: var(--text-soft);
+    font-family: var(--font-mono);
+    font-size: .72rem;
+    font-weight: 900;
+    line-height: 1;
+  }
+
+  .ranktbl tbody tr:nth-child(1) td.rank,
+  .ranktbl tbody tr:nth-child(2) td.rank,
+  .ranktbl tbody tr:nth-child(3) td.rank {
+    background: var(--win-soft);
+    border-color: rgb(0 196 106 / .26);
+    color: var(--win-text);
+  }
+
+  .ranktbl .pname {
+    overflow: visible;
+    font-size: var(--fs-md);
+    line-height: 1.25;
+    text-overflow: clip;
+    white-space: normal;
+  }
+
+  .ranktbl .pteam {
+    justify-self: start;
+    padding: 2px 7px 2px 3px;
+    background: rgb(255 255 255 / .04);
+    border: 1px solid rgb(255 255 255 / .07);
+    border-radius: var(--radius-pill);
+    color: var(--text-soft);
+    line-height: 1.2;
+  }
+
+  .ranktbl td:not(.ply):not(.rank) {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-content: center;
+    gap: 2px;
+    min-height: 44px;
+    overflow: hidden;
+    background: rgb(255 255 255 / .025);
+    color: var(--text);
+    font-family: var(--font-mono);
+    font-size: .78rem;
+    font-weight: 850;
+    line-height: 1.15;
+    text-align: left;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .ranktbl td.on {
+    background: var(--win-soft);
+    border-color: rgb(0 196 106 / .22);
+    color: var(--win-text);
+  }
+
+  .players-page .note.small {
+    margin-top: var(--space-4);
+    padding: var(--space-3);
+    font-size: .74rem;
+    line-height: 1.62;
+  }
+
+  .clearf {
+    display: block;
+    width: 100%;
+    margin: var(--space-2) 0 0;
+    min-height: 32px;
+  }
+}
+
+@media (min-width: 340px) and (max-width: 620px) {
+  .ranktbl tr {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}

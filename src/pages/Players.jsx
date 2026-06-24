@@ -71,16 +71,17 @@ export default function Players() {
           <tbody>
             {rows.map((p, i) => (
               <tr key={p.name + p.team}>
-                <td className="rank">{i + 1}</td>
+                <td className="rank" data-label="排名">{i + 1}</td>
                 <td className="ply">
                   <span className="pname">{p.name}</span>
                   <a className="pteam" href={`/players?team=${p.team}`} onClick={e => { e.preventDefault(); setTeam(p.team) }}><Crest code={p.team} className="tiny" />{nm(p.team)}</a>
                 </td>
-                <td>{p.mp}</td>
+                <td data-label="场">{p.mp}</td>
                 {COLS.map(([k]) => {
-                  const v = COLMAP[k][2](p)
+                  const [, label, acc] = COLMAP[k]
+                  const v = acc(p)
                   const show = k === 'rating' ? (p.rating ?? '—') : v
-                  return <td key={k} className={sort === k ? 'on' : ''}>{show}</td>
+                  return <td key={k} data-label={label} className={sort === k ? 'on' : ''}>{show}</td>
                 })}
               </tr>
             ))}
