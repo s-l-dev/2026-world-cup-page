@@ -130,6 +130,12 @@ export default function List() {
         <div className="sub">更新 {bj(data.generated_at)}（北京时间） · <Link to="/players" className="navlink">球员数据榜 →</Link></div>
       </header>
       <div className="kpis"><div><b>{fin}</b>已完赛</div><div><b>{matches.length - fin}</b>未开赛</div><div><b>{matches.length}</b>总场次</div></div>
+      {data.modelReview && (
+        <div className="review">
+          📊 模型本届战绩（{data.modelReview.n} 场）：胜平负命中 <b>{pct(data.modelReview.model)}</b>（市场 {pct(data.modelReview.market)}）· 正确比分 {pct(data.modelReview.exact)} · 大小球 {pct(data.modelReview.ou)}
+          <span className="dim small"> ｜ 打平：模型 {pct(data.modelReview.draw.model)} / 市场 {pct(data.modelReview.draw.market_novig)} / 实际 {pct(data.modelReview.draw.actual)}（模型≈市场，平局偏多多为波动）</span>
+        </div>
+      )}
       <div className="note">模型预测仅供分析参考；"价值"多为模型与市场背离；影子模式，非下注建议。时间为北京时间。</div>
       <div className="tabs">{TABS.map(([k, lbl]) => <button key={k} className={tab === k ? 'on' : ''} onClick={() => setTab(k)}>{lbl}</button>)}</div>
 

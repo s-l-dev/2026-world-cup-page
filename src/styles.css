@@ -3818,3 +3818,18 @@ header h1 {
   background: var(--win-soft); border: 1px solid rgb(0 196 106 / .3); border-radius: var(--radius-md);
   color: var(--win-text); font-size: var(--fs-sm); font-weight: 700;
 }
+
+/* ===== 模型战绩 + 最大背离 ===== */
+.review {
+  margin: 0 0 var(--space-3); padding: var(--space-2) var(--space-4);
+  background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md);
+  color: var(--text-soft); font-size: var(--fs-sm); line-height: 1.6;
+}
+.review b { color: var(--win-text); }
+.divsum {
+  margin: 0 0 var(--space-3); padding: var(--space-2) var(--space-3);
+  background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius-sm);
+  font-size: var(--fs-sm);
+}
+.divsum.val { background: var(--win-soft); border-color: rgb(0 196 106 / .3); }
+.divsum b { color: var(--text); }

@@ -441,10 +441,20 @@ function MarketCompare({ m }) {
   const mk = m.market
   if (!mk) return null
   const lbl = { home: tn(m.home), draw: '平局', away: tn(m.away) }
+  // biggest 1X2 divergence (model vs sharp no-vig), the only market with shown skill — not advice
+  const sel = mk.h2h?.sel || {}
+  const top = ['home', 'draw', 'away'].map(k => sel[k] && ({ k, ...sel[k] })).filter(Boolean)
+    .sort((a, b) => (b.ev ?? -99) - (a.ev ?? -99))[0]
   return (
     <section className="card market">
       <h3>💰 模型 vs 市场 <SrcTag k="market" /><span className="dim small">下注参考 · 影子模式</span>
         <Link className="oddslink" to={`/odds/${m.id}`} target="_blank" rel="noopener">逐家赔率 →</Link></h3>
+      {top && (
+        <div className={`divsum ${top.value ? 'val' : ''}`}>
+          ⚖️ 最大背离（仅 1X2）：<b>{lbl[top.k]}</b> — 模型 {pct(top.modelP)} vs 市场 {top.novig != null ? pct(top.novig) : '—'}，EV {top.ev > 0 ? '+' : ''}{top.ev}%（最优价 {top.best}）
+          <div className="dim small">{top.value ? '模型认为此项有正期望' : '模型未发现明显价值（与市场基本一致）'}——历史上 1X2 仅有微弱 CLV、EV 不预测盈利；<b>非下注建议</b>，勿串关（串关抽水复利、严格负期望）。</div>
+        </div>
+      )}
       {mk.h2h && (
         <div className="mblock">
           <div className="mlabel">胜平负 1X2 <span className="dim">· {mk.h2h.books} 家均盘</span></div>
@@ -589,21 +599,6 @@ export default function Detail() {
         </section>
       )}
 
-      {sc.report && (
-        <Collapse title={<>球探报告 <SrcTag k="mix" /></>} sub={m.finished ? '· 赛前留存' : ''} cls="report" defaultOpen={!m.finished}>
-          <ReportBody secs={sc.report} />
-        </Collapse>
-      )}
-
-      {(sc.metrics?.length > 0 || sc.zonesHome) && (
-        <Collapse title={<>📊 数据对比 <SrcTag k="wc" /></>} sub="蓝=主 橙=客 绿=更优" cls="viz" defaultOpen>
-          {sc.metrics?.map((r, i) => <MetricBar key={i} row={r} />)}
-          {sc.zonesHome && sc.zonesAway && <Zones zones={{ home: sc.zonesHome, away: sc.zonesAway }} home={m.home} away={m.away} label="进攻区域分布（左/中/右）" />}
-          {sc.defZonesHome && sc.defZonesAway && <Zones zones={{ home: sc.defZonesHome, away: sc.defZonesAway }} home={m.home} away={m.away} label="防守失守区域（越高=该侧越常被攻）" />}
-          <div className="dim small">本届实测均值（多为小样本，参考为主）；绿色 = 该项数值更优（已考虑「越低越好」的项如失 xG、PPDA）。</div>
-        </Collapse>
-      )}
-
       {p && (
         <section className="card prediction">
           <h3><span>模型预测 <SrcTag k="model" /></span>
@@ -647,6 +642,21 @@ export default function Detail() {
       )}
 
       <MarketCompare m={m} />
+
+      {sc.report && (
+        <Collapse title={<>球探报告 <SrcTag k="mix" /></>} sub={m.finished ? '· 赛前留存' : ''} cls="report" defaultOpen={!m.finished}>
+          <ReportBody secs={sc.report} />
+        </Collapse>
+      )}
+
+      {(sc.metrics?.length > 0 || sc.zonesHome) && (
+        <Collapse title={<>📊 数据对比 <SrcTag k="wc" /></>} sub="蓝=主 橙=客 绿=更优" cls="viz" defaultOpen>
+          {sc.metrics?.map((r, i) => <MetricBar key={i} row={r} />)}
+          {sc.zonesHome && sc.zonesAway && <Zones zones={{ home: sc.zonesHome, away: sc.zonesAway }} home={m.home} away={m.away} label="进攻区域分布（左/中/右）" />}
+          {sc.defZonesHome && sc.defZonesAway && <Zones zones={{ home: sc.defZonesHome, away: sc.defZonesAway }} home={m.home} away={m.away} label="防守失守区域（越高=该侧越常被攻）" />}
+          <div className="dim small">本届实测均值（多为小样本，参考为主）；绿色 = 该项数值更优（已考虑「越低越好」的项如失 xG、PPDA）。</div>
+        </Collapse>
+      )}
 
       <Collapse title={<>赛前情报 <SrcTag k="mix" /></>} cls="intel" defaultOpen={false}>
         <div className="row"><span className="k">{tn(m.home)} 近况</span><Form list={sc.formHome} /></div>
