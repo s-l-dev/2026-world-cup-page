@@ -566,20 +566,20 @@ export default function Detail() {
         <h1 className="sr-only">{nm(m.home)} vs {nm(m.away)}</h1>
         <div className="matchmeta">{bj(m.kickoff)}（北京时间） · 组{m.group || m.stage} · {m.finished ? '已完赛' : '未开赛'}</div>
         <div className="scoreboard">
-          <div className="side home">
+          <Link className="side home teamjump" to={`/players?team=${m.home}`} target="_blank" rel="noopener" title={`查看 ${nm(m.home)} 球员`}>
             <Crest code={m.home} className="xl" />
-            <strong><TeamName code={m.home} /></strong>
-          </div>
+            <strong>{nm(m.home)} <span className="jumpicon">👤</span></strong>
+          </Link>
           <div className="scorebox">
             {m.finished
               ? <><b>{m.result.h}</b><span>-</span><b>{m.result.a}</b></>
               : <span className="vsmark">VS</span>}
             <small>{m.finished ? 'Full time' : 'Preview'}</small>
           </div>
-          <div className="side away">
+          <Link className="side away teamjump" to={`/players?team=${m.away}`} target="_blank" rel="noopener" title={`查看 ${nm(m.away)} 球员`}>
             <Crest code={m.away} className="xl" />
-            <strong><TeamName code={m.away} /></strong>
-          </div>
+            <strong>{nm(m.away)} <span className="jumpicon">👤</span></strong>
+          </Link>
         </div>
       </header>
 

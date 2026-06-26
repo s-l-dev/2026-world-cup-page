@@ -3833,3 +3833,18 @@ header h1 {
 }
 .divsum.val { background: var(--win-soft); border-color: rgb(0 196 106 / .3); }
 .divsum b { color: var(--text); }
+
+/* ===== real crest logos (img) + team jump affordance ===== */
+.crest.img {
+  background: none; border: none; border-radius: 0; object-fit: contain;
+  filter: drop-shadow(0 1px 2px rgb(0 0 0 / .35));
+}
+.crest.img.tiny, .crest.img.inline { width: 20px; height: 20px; }
+.crest.img.xl { width: 52px; height: 52px; }
+.teamname .crest.inline { margin-right: 2px; }
+
+.teamjump { text-decoration: none; cursor: pointer; transition: transform .12s ease; }
+.teamjump:hover { transform: translateY(-2px); }
+.teamjump:hover strong { color: var(--home-text); }
+.jumpicon { font-size: .7em; opacity: .55; }
+.teamjump:hover .jumpicon { opacity: 1; }

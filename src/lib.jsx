@@ -25,16 +25,22 @@ const isoFlag = iso => iso && iso.length === 2
 export const flag = code => SPECIAL_FLAGS[code] || isoFlag(ISO_BY_TEAM[code])
 export const tn = code => flag(code) ? `${flag(code)} ${nm(code)}` : nm(code)
 
+let _crests = {}
+export const crestUrl = code => _crests[code]
+
+// real FotMob crest logo; falls back to flag emoji, then the 3-letter code (on load error too)
 export function Crest({ code, className = '' }) {
+  const [err, setErr] = useState(false)
+  const url = _crests[code]
+  if (url && !err) return <img className={`crest img ${className}`.trim()} src={url} alt={nm(code)} title={nm(code)} loading="lazy" onError={() => setErr(true)} />
   const f = flag(code)
   return <span className={`crest ${f ? 'has-flag' : ''} ${className}`.trim()} title={nm(code)}>{f || code}</span>
 }
 
 export function TeamName({ code, className = '' }) {
-  const f = flag(code)
   return (
     <span className={`teamname ${className}`.trim()}>
-      {f && <span className="flag" aria-hidden="true">{f}</span>}
+      <Crest code={code} className="inline" />
       <span>{nm(code)}</span>
     </span>
   )
@@ -44,7 +50,7 @@ export function useData() {
   const [data, setData] = useState(_cache)
   useEffect(() => {
     if (_cache) return
-    fetch('/data.json').then(r => r.json()).then(d => { _cache = d; _teams = d.teams || {}; setData(d) })
+    fetch('/data.json').then(r => r.json()).then(d => { _cache = d; _teams = d.teams || {}; _crests = d.crests || {}; setData(d) })
   }, [])
   return data
 }
