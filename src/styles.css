@@ -541,8 +541,8 @@ h2 {
   display: flex;
   align-items: center;
   justify-content: center;
-  min-width: 26px;
-  padding: 0 3px;
+  min-width: 32px;
+  padding: 0 2px;
   overflow: hidden;
   text-shadow: 0 1px 1px rgb(0 0 0 / .3);
 }
@@ -1554,7 +1554,7 @@ footer {
   }
 
   .groups {
-    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
   }
 
   .grid,
@@ -1937,7 +1937,7 @@ header h1 {
 }
 
 .pseg {
-  min-width: 24px;
+  min-width: 32px;
 }
 
 .pseg.home {
@@ -2918,6 +2918,14 @@ header h1 {
 
   .bfinals > div {
     max-width: none;
+  }
+}
+
+@media (max-width: 340px) {
+  .pseg {
+    min-width: 26px;
+    padding: 0 1px;
+    font-size: .58rem;
   }
 }
 
