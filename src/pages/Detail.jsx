@@ -30,6 +30,7 @@ function Hint({ children }) {
   )
 }
 const MEAN_HINT = '进攻 xG = 该队本届场均创造的 xG（FotMob 实测）；对手防守 xG = 对手本届场均被创造的 xG。差值 = 进攻 − 对手防守：正 = 你创造的多于对手通常允许的（进攻有机会），负 = 被压制，≈0 均衡。⚠️ 未做对手强度校正、小样本，仅作过程参考；对手校正后的版本见上方「模型校正」的预测进球 λ。'
+const SUSP_HINT = '世界杯规则：累计 2 张黄牌（不同场次、四分之一决赛前）将停赛 1 场。这里列出当前“身背 1 张黄牌”的球员——再领一张就停下一场，赛前换人/轮换的重要参考。本届实测、按本场开赛前累计。'
 const RATING_HINT = '模型的底层实力评级（用近~2 年国际赛结果做时间衰减拟合）。Elo = 综合强度（越高越强，1500 为平均）。进攻 α≈1 为平均、越高进攻越强；防守 β≈1 为平均、越低防守越好（β 是对手进球的乘数，所以越低越好）。预测进球 λ 就是把双方的 α/β 代进公式算出来的——这就是「为什么是这个 λ」。'
 
 // data-source tags so the user can tell what's THIS-tournament data vs model/market/historical
@@ -667,6 +668,10 @@ export default function Detail() {
         {(sc.injHome.length > 0 || sc.injAway.length > 0) && <div className="row"><span className="k">伤停</span><div className="dim">
           {sc.injHome.length > 0 && <div>{tn(m.home)}: {sc.injHome.map(x => `${x.name}(${x.status})`).join(', ')}</div>}
           {sc.injAway.length > 0 && <div>{tn(m.away)}: {sc.injAway.map(x => `${x.name}(${x.status})`).join(', ')}</div>}
+        </div></div>}
+        {((sc.suspHome || []).length > 0 || (sc.suspAway || []).length > 0) && <div className="row"><span className="k">停赛风险<Hint>{SUSP_HINT}</Hint></span><div className="dim">
+          {(sc.suspHome || []).length > 0 && <div>{tn(m.home)}: {sc.suspHome.map(x => x.name).join('、')}（各 1 黄，再领即停赛）</div>}
+          {(sc.suspAway || []).length > 0 && <div>{tn(m.away)}: {sc.suspAway.map(x => x.name).join('、')}（再领即停赛）</div>}
         </div></div>}
         <OddsBoard m={m} />
       </Collapse>
