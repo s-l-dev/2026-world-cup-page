@@ -46,6 +46,18 @@ export function TeamName({ code, className = '' }) {
   )
 }
 
+const isRealCode = c => c && !/\d/.test(c)  // placeholders like 2A/1C have digits
+// crest that, when clicked, opens that team's squad in a new tab AND stops the parent row link
+export function SquadCrest({ code, className = '' }) {
+  if (!isRealCode(code)) return <Crest code={code} className={className} />
+  const open = e => { e.preventDefault(); e.stopPropagation(); window.open(`/players?team=${code}`, '_blank', 'noopener') }
+  return (
+    <span className="squadcrest" title={`查看 ${nm(code)} 球员`} onClick={open}>
+      <Crest code={code} className={className} />
+    </span>
+  )
+}
+
 export function useData() {
   const [data, setData] = useState(_cache)
   useEffect(() => {

@@ -1,6 +1,6 @@
 import React, { useMemo } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
-import { useData, pct, bj, bjTime, bjDate, nm, tn, Crest, TeamName } from '../lib.jsx'
+import { useData, pct, bj, bjTime, bjDate, nm, tn, Crest, SquadCrest, TeamName } from '../lib.jsx'
 
 const TABS = [['standings', '小组积分'], ['group', '小组赛程'], ['ko', '淘汰赛'], ['bracket', '晋级图']]
 
@@ -21,9 +21,9 @@ function MatchRow({ m }) {
         <span className={`badge ${m.finished ? 'fin' : 'up'}`}>{m.finished ? '完赛' : '未赛'}</span>
       </div>
       <div className="mteams">
-        <span className="mteam home"><Crest code={m.home} /><span className="mname">{nm(m.home)}</span></span>
+        <span className="mteam home"><SquadCrest code={m.home} /><span className="mname">{nm(m.home)}</span></span>
         <span className="dim">vs</span>
-        <span className="mteam away"><Crest code={m.away} /><span className="mname">{nm(m.away)}</span></span>
+        <span className="mteam away"><SquadCrest code={m.away} /><span className="mname">{nm(m.away)}</span></span>
       </div>
       <div className="mright">
         {m.finished
@@ -63,8 +63,8 @@ function ByDate({ matches, reverse = false }) {
 function BCard({ m }) {
   return (
     <Link to={`/m/${m.id}`} target="_blank" rel="noopener" className={`bmatch ${m.result ? 'done' : 'todo'}`}>
-      <div className="bteam"><span className="bname"><Crest code={m.home} className="tiny" />{nm(m.home)}</span>{m.result && <b>{m.result.h}</b>}</div>
-      <div className="bteam"><span className="bname"><Crest code={m.away} className="tiny" />{nm(m.away)}</span>{m.result && <b>{m.result.a}</b>}</div>
+      <div className="bteam"><span className="bname"><SquadCrest code={m.home} className="tiny" />{nm(m.home)}</span>{m.result && <b>{m.result.h}</b>}</div>
+      <div className="bteam"><span className="bname"><SquadCrest code={m.away} className="tiny" />{nm(m.away)}</span>{m.result && <b>{m.result.a}</b>}</div>
       <div className="bdate">{bjDate(m.kickoff || m.date + 'T00:00:00Z').slice(5)}</div>
     </Link>
   )

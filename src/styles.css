@@ -3848,3 +3848,7 @@ header h1 {
 .teamjump:hover strong { color: var(--home-text); }
 .jumpicon { font-size: .7em; opacity: .55; }
 .teamjump:hover .jumpicon { opacity: 1; }
+
+/* ===== clickable squad crest (in match rows / bracket) ===== */
+.squadcrest { cursor: pointer; display: inline-flex; align-items: center; border-radius: 50%; transition: transform .12s ease; }
+.squadcrest:hover { transform: scale(1.18); filter: brightness(1.15); }
