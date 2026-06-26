@@ -679,6 +679,7 @@ export default function Detail() {
           const cx = (lbl, x) => x ? <span className="ctxchip">{lbl} 休整 {x.restDays === '首战' ? '首战' : x.restDays + '天'}{x.travelKm != null ? `· 旅程 ${x.travelKm}km` : ''}{x.host ? ' · 主场' : ''}</span> : null
           return <div className="row"><span className="k">休整 / 旅程</span><div className="forms">{cx(tn(m.home), sc.matchCtx.home)}{cx(tn(m.away), sc.matchCtx.away)}</div></div>
         })()}
+        {m.referee && <div className="row"><span className="k">主裁判</span><div className="dim">{m.referee.name}{m.referee.country ? `（${m.referee.country}）` : ''}{m.finished ? '' : '（赛前指派）'}</div></div>}
         <OddsBoard m={m} />
       </Collapse>
 
@@ -694,7 +695,6 @@ export default function Detail() {
             <div className="row" key={tid}><span className="k">{tn(tid)} 评分</span><div className="forms">{ps.map((x, i) => <span key={i} className="rchip">{x.name}<Rating r={x.r} /></span>)}</div></div>
           ))}
           {m.events?.length > 0 && <div className="row"><span className="k">进球/牌</span><div className="forms">{m.events.map((e, i) => <span key={i} className="evchip">{e.min}' {e.type === 'Goal' ? '进球' : '黄牌'} {tn(e.team)} {e.player}</span>)}</div></div>}
-          {m.referee && <div className="row"><span className="k">主裁判</span><div className="dim">{m.referee.name}{m.referee.country ? `（${m.referee.country}）` : ''}</div></div>}
           <Zones zones={m.zones} home={m.home} away={m.away} />
           <ShotMap shots={m.shotmap} home={m.home} away={m.away} />
           <Momentum values={m.momentum} />
