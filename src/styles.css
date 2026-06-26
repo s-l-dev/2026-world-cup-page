@@ -2575,11 +2575,39 @@ header h1 {
 
   .st th:first-child,
   .st td:first-child {
-    width: 44%;
+    width: 39%;
+  }
+
+  .st th:nth-child(2),
+  .st td:nth-child(2) {
+    width: 10%;
+  }
+
+  .st th:nth-child(3),
+  .st td:nth-child(3) {
+    width: 20%;
+  }
+
+  .st th:nth-child(4),
+  .st td:nth-child(4) {
+    width: 17%;
+  }
+
+  .st th:nth-child(5),
+  .st td:nth-child(5) {
+    width: 14%;
   }
 
   .st .teamname {
     gap: 4px;
+  }
+
+  .st .teamname > span:last-child {
+    overflow: visible;
+    text-overflow: clip;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    line-height: 1.15;
   }
 
   .st .flag {
@@ -2587,7 +2615,24 @@ header h1 {
   }
 
   .formnum {
-    min-width: 14px;
+    min-width: 10px;
+    padding: 0 1px;
+  }
+
+  .pseg {
+    min-width: 22px;
+    padding: 0 2px;
+    font-size: .62rem;
+  }
+
+  .pseg b {
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .cmplab {
+    grid-template-columns: minmax(3.95em, auto) minmax(0, 1fr) minmax(3.95em, auto);
+    gap: var(--space-1);
   }
 
   .rtbl-wrap,
@@ -2841,6 +2886,11 @@ header h1 {
 
   .bname {
     gap: 4px;
+  }
+
+  .bracket .crest.tiny:not(.has-flag),
+  .bfinalblock .crest.tiny:not(.has-flag) {
+    display: none;
   }
 
   .bdate {
