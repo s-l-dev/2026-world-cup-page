@@ -673,6 +673,10 @@ export default function Detail() {
           {(sc.suspHome || []).length > 0 && <div>{tn(m.home)}: {sc.suspHome.map(x => x.name).join('、')}（各 1 黄，再领即停赛）</div>}
           {(sc.suspAway || []).length > 0 && <div>{tn(m.away)}: {sc.suspAway.map(x => x.name).join('、')}（再领即停赛）</div>}
         </div></div>}
+        {sc.matchCtx && (() => {
+          const cx = (lbl, x) => x ? <span className="ctxchip">{lbl} 休整 {x.restDays === '首战' ? '首战' : x.restDays + '天'}{x.travelKm != null ? `· 旅程 ${x.travelKm}km` : ''}{x.host ? ' · 主场' : ''}</span> : null
+          return <div className="row"><span className="k">休整 / 旅程</span><div className="forms">{cx(tn(m.home), sc.matchCtx.home)}{cx(tn(m.away), sc.matchCtx.away)}</div></div>
+        })()}
         <OddsBoard m={m} />
       </Collapse>
 

@@ -3756,3 +3756,8 @@ header h1 {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 }
+
+/* ===== 休整/旅程 chip ===== */
+.ctxchip { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: var(--radius-pill); background: var(--surface); border: 1px solid var(--border); color: var(--text-soft); font-size: var(--fs-xs); }
+.ratings { margin-top: var(--space-3); }
+.ratings > .k { margin-bottom: var(--space-2); }
