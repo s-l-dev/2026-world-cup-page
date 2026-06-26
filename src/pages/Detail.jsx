@@ -30,6 +30,7 @@ function Hint({ children }) {
   )
 }
 const MEAN_HINT = '进攻 xG = 该队本届场均创造的 xG（FotMob 实测）；对手防守 xG = 对手本届场均被创造的 xG。差值 = 进攻 − 对手防守：正 = 你创造的多于对手通常允许的（进攻有机会），负 = 被压制，≈0 均衡。⚠️ 未做对手强度校正、小样本，仅作过程参考；对手校正后的版本见上方「模型校正」的预测进球 λ。'
+const RATING_HINT = '模型的底层实力评级（用近~2 年国际赛结果做时间衰减拟合）。Elo = 综合强度（越高越强，1500 为平均）。进攻 α≈1 为平均、越高进攻越强；防守 β≈1 为平均、越低防守越好（β 是对手进球的乘数，所以越低越好）。预测进球 λ 就是把双方的 α/β 代进公式算出来的——这就是「为什么是这个 λ」。'
 
 // data-source tags so the user can tell what's THIS-tournament data vs model/market/historical
 const SRC = { wc: ['本届', 'src-wc'], model: ['模型', 'src-model'], market: ['盘口', 'src-market'], hist: ['历史', 'src-hist'], mix: ['混合', 'src-mix'] }
@@ -612,6 +613,16 @@ export default function Detail() {
           <ProbBar p={snap.x12} home={tn(m.home)} away={tn(m.away)} />
           <CompareBar label="模型预测进球 λ" h={snap.lambda.home} a={snap.lambda.away} hn={nm(m.home)} an={nm(m.away)} />
           <div className="dim small">λ = 模型赛前预测的「场均进球数」（来自球队实力评级），是预测值。区别于下方赛后的 xG（由实际射门质量算出的预期进球值）。</div>
+          {p.rating?.home && p.rating?.away && (
+            <div className="ratings">
+              <div className="k">实力评级（模型底层）<Hint>{RATING_HINT}</Hint></div>
+              <table className="mtbl otbl"><thead><tr><th>球队</th><th>Elo 强度</th><th>进攻 α</th><th>防守 β</th></tr></thead>
+                <tbody>
+                  <tr><td className="sel" data-label="">{tn(m.home)}</td><td data-label="Elo">{p.rating.home.elo}</td><td data-label="进攻α">{p.rating.home.attack}</td><td data-label="防守β">{p.rating.home.defense}</td></tr>
+                  <tr><td className="sel" data-label="">{tn(m.away)}</td><td data-label="Elo">{p.rating.away.elo}</td><td data-label="进攻α">{p.rating.away.attack}</td><td data-label="防守β">{p.rating.away.defense}</td></tr>
+                </tbody></table>
+            </div>
+          )}
           <div className="grid">
             <div><span className="k">最可能比分</span>{snap.topScores.slice(0, 3).map(s => `${s.score} ${pct(s.p)}`).join('，')}</div>
             <div><span className="k">大小球 2.5</span>大 {pct(p.totals.o25)} / 小 {pct(1 - p.totals.o25)}</div>
