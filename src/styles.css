@@ -3761,3 +3761,10 @@ header h1 {
 .ctxchip { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: var(--radius-pill); background: var(--surface); border: 1px solid var(--border); color: var(--text-soft); font-size: var(--fs-xs); }
 .ratings { margin-top: var(--space-3); }
 .ratings > .k { margin-bottom: var(--space-2); }
+
+/* ===== stakes banner ===== */
+.stakes {
+  margin: 0 0 var(--space-3); padding: var(--space-2) var(--space-4);
+  background: var(--win-soft); border: 1px solid rgb(0 196 106 / .3); border-radius: var(--radius-md);
+  color: var(--win-text); font-size: var(--fs-sm); font-weight: 700;
+}

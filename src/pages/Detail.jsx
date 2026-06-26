@@ -573,6 +573,8 @@ export default function Detail() {
         </div>
       </header>
 
+      {m.stakes && <div className="stakes">🏆 {m.stakes}</div>}
+
       <div className="srclegend">
         数据来源：<SrcTag k="wc" />本届实测（FotMob）
         <SrcTag k="model" />长期实力评级（含本届，非纯本届）
@@ -692,6 +694,7 @@ export default function Detail() {
             <div className="row" key={tid}><span className="k">{tn(tid)} 评分</span><div className="forms">{ps.map((x, i) => <span key={i} className="rchip">{x.name}<Rating r={x.r} /></span>)}</div></div>
           ))}
           {m.events?.length > 0 && <div className="row"><span className="k">进球/牌</span><div className="forms">{m.events.map((e, i) => <span key={i} className="evchip">{e.min}' {e.type === 'Goal' ? '进球' : '黄牌'} {tn(e.team)} {e.player}</span>)}</div></div>}
+          {m.referee && <div className="row"><span className="k">主裁判</span><div className="dim">{m.referee.name}{m.referee.country ? `（${m.referee.country}）` : ''}</div></div>}
           <Zones zones={m.zones} home={m.home} away={m.away} />
           <ShotMap shots={m.shotmap} home={m.home} away={m.away} />
           <Momentum values={m.momentum} />
