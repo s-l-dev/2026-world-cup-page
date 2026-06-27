@@ -2,7 +2,64 @@ import React, { useMemo } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { useData, pct, bj, bjTime, bjDate, nm, tn, Crest, SquadCrest, TeamName } from '../lib.jsx'
 
-const TABS = [['standings', '小组积分'], ['group', '小组赛程'], ['ko', '淘汰赛'], ['bracket', '晋级图']]
+const TABS = [['overview', '预测战绩'], ['standings', '小组积分'], ['group', '小组赛程'], ['ko', '淘汰赛'], ['bracket', '晋级图']]
+
+// One finished match: predicted 1X2 bar (winning side highlighted) + predicted top-12 scorelines
+// (actual highlighted) + whether the result landed the top pick. All scored on the PRE-KICKOFF
+// snapshot, so this is honest accuracy, not a post-result refit.
+function OvMatch({ m }) {
+  const segs = [['home', m.x12.home, tn(m.home)], ['draw', m.x12.draw, '平'], ['away', m.x12.away, tn(m.away)]]
+  return (
+    <Link to={`/m/${m.id}`} target="_blank" rel="noopener" className="ovrow">
+      <div className="ovteams">
+        <span className="ovt"><SquadCrest code={m.home} className="tiny" />{nm(m.home)}</span>
+        <b className="ovscore">{m.actual}</b>
+        <span className="ovt">{nm(m.away)}<SquadCrest code={m.away} className="tiny" /></span>
+        <span className={`ovhit ${m.topPickHit ? 'ok' : 'no'}`}>{m.topPickHit ? '✓ 命中' : '✗ 未中'}</span>
+      </div>
+      <div className="predbar ov">
+        {segs.map(([k, v, lbl]) => (
+          <span className={`pseg ${k} ${m.result === k ? 'won' : ''}`} style={{ width: `${v * 100}%` }} key={k}>
+            <em>{lbl}</em><b>{pct(v)}</b>
+          </span>
+        ))}
+      </div>
+      <div className="ovscores">
+        {m.top12.map(s => <span className={`csbox ${s.score === m.actual ? 'hit' : ''}`} key={s.score}>{s.score}<i>{pct(s.p)}</i></span>)}
+        {!m.scoreInTop12 && <span className="csbox miss">赛果 {m.actual} 不在前12</span>}
+      </div>
+    </Link>
+  )
+}
+
+function Overview({ ov }) {
+  if (!ov || !ov.n) return <div className="note">尚无已完赛的赛前预测可统计。</div>
+  const Stat = ({ k, v, s }) => <div className="ovstat"><div className="ovk">{k}</div><div className="ovv">{v}</div>{s && <div className="ovs">{s}</div>}</div>
+  return (
+    <div className="overview">
+      <div className="ovgrid">
+        <Stat k="胜平负命中" v={pct(ov.topPickRate)} s={`市场 ${pct(ov.marketTopPickRate)}`} />
+        <Stat k="赛果在前12比分" v={pct(ov.scoreInTop12Rate)} s="实际比分落在模型前12" />
+        <Stat k="正确比分" v={pct(ov.exactScoreRate)} s="最可能比分=赛果" />
+        <Stat k="大小球 2.5" v={pct(ov.ou25Rate)} s="过/不过方向" />
+        <Stat k="样本" v={`${ov.n} 场`} s={ov.skipped_no_prematch_snapshot ? `另 ${ov.skipped_no_prematch_snapshot} 场无赛前快照` : '均为赛前快照'} />
+      </div>
+      <div className="ovnote small dim">
+        口径：仅用开球前生成的预测打分（无赛果泄漏）。平局：模型 {pct(ov.drawRate.model)} / 市场 {pct(ov.drawRate.market)} / 实际 {pct(ov.drawRate.actual)}。
+      </div>
+      <div className="ovcal">
+        <div className="ovcaltitle">校准（模型置信档 vs 实际命中率）</div>
+        <table className="st"><thead><tr><th>置信档</th><th>命中/样本</th><th>实际命中率</th></tr></thead>
+          <tbody>{ov.calibration.map(b => (
+            <tr key={b.bucket}><td data-label="置信档">{b.bucket}</td><td data-label="命中/样本">{b.hit}/{b.n}</td>
+              <td data-label="实际命中率">{b.n ? pct(b.hit / b.n) : '—'}</td></tr>
+          ))}</tbody></table>
+      </div>
+      <div className="ovlisttitle">逐场：预测 vs 赛果（最近在前）</div>
+      <div className="ovmatches">{ov.matches.map(m => <OvMatch m={m} key={m.id} />)}</div>
+    </div>
+  )
+}
 
 function MatchRow({ m }) {
   const pr = m.prediction
@@ -104,7 +161,7 @@ export default function List() {
   const data = useData()
   // View state lives in the URL so Detail → 返回 restores the exact tab/filters.
   const [sp, setSp] = useSearchParams()
-  const tab = sp.get('tab') || 'standings'
+  const tab = sp.get('tab') || 'overview'
   const g = sp.get('g') || ''
   const st = sp.get('st') || ''
   const setParam = (k, v) => setSp(prev => {
@@ -127,7 +184,7 @@ export default function List() {
     <div className="wrap">
       <header>
         <h1>世界杯 2026 数据中心</h1>
-        <div className="sub">更新 {bj(data.generated_at)}（北京时间） · <Link to="/players" className="navlink">球员数据榜 →</Link></div>
+        <div className="sub">更新 {bj(data.generated_at)}（北京时间） · <Link to="/players" className="navlink">球员数据榜 →</Link> · <Link to="/methodology" className="navlink">方法说明 →</Link></div>
       </header>
       <div className="kpis"><div><b>{fin}</b>已完赛</div><div><b>{matches.length - fin}</b>未开赛</div><div><b>{matches.length}</b>总场次</div></div>
       {data.modelReview && (
@@ -139,6 +196,7 @@ export default function List() {
       <div className="note">模型预测仅供分析参考；"价值"多为模型与市场背离；影子模式，非下注建议。时间为北京时间。</div>
       <div className="tabs">{TABS.map(([k, lbl]) => <button key={k} className={tab === k ? 'on' : ''} onClick={() => setTab(k)}>{lbl}</button>)}</div>
 
+      {tab === 'overview' && <Overview ov={data.overview} />}
       {tab === 'standings' && (
         <div className="groups">
           {Object.entries(data.standings).map(([gn, teams]) => (

@@ -3860,3 +3860,53 @@ header h1 {
 /* ===== clickable squad crest (in match rows / bracket) ===== */
 .squadcrest { cursor: pointer; display: inline-flex; align-items: center; border-radius: 50%; transition: transform .12s ease; }
 .squadcrest:hover { transform: scale(1.18); filter: brightness(1.15); }
+
+/* ---- Homepage prediction-accuracy overview (预测战绩) ---- */
+.overview { display: flex; flex-direction: column; gap: 14px; }
+.ovgrid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
+.ovstat { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; }
+.ovstat .ovk { color: var(--muted); font-size: 12px; }
+.ovstat .ovv { font-size: 24px; font-weight: 700; margin-top: 2px; }
+.ovstat .ovs { color: var(--faint); font-size: 11px; margin-top: 2px; }
+.ovnote { margin: -2px 2px 2px; }
+.ovcal { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 10px 14px; }
+.ovcaltitle, .ovlisttitle { font-weight: 600; color: var(--text-soft); margin-bottom: 8px; }
+.ovlisttitle { margin-top: 6px; }
+.ovmatches { display: flex; flex-direction: column; gap: 10px; }
+.ovrow { display: flex; flex-direction: column; gap: 8px; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 12px 14px; text-decoration: none; color: var(--text); }
+.ovrow:hover { border-color: var(--border-strong); background: var(--surface-2); }
+.ovteams { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; font-weight: 600; }
+.ovteams .ovt { display: inline-flex; align-items: center; gap: 6px; }
+.ovteams .ovscore { font-family: var(--font-mono); font-size: 18px; padding: 0 6px; }
+.ovhit { margin-left: auto; font-size: 12px; padding: 2px 8px; border-radius: 999px; }
+.ovhit.ok { background: rgb(74 222 128 / .14); color: #86efac; }
+.ovhit.no { background: rgb(248 113 113 / .12); color: #fca5a5; }
+.predbar.ov { display: flex; height: 26px; border-radius: 8px; overflow: hidden; border: 1px solid var(--border); }
+.predbar.ov .pseg.home { background: var(--home-soft); color: var(--home-text); }
+.predbar.ov .pseg.draw { background: rgb(140 152 170 / .14); color: #c4cdda; }
+.predbar.ov .pseg.away { background: var(--away-soft); color: var(--away-text); }
+.predbar.ov .pseg.won { outline: 2px solid currentColor; outline-offset: -2px; font-weight: 700; }
+.predbar.ov .pseg em { font-style: normal; font-size: 11px; opacity: .85; margin-right: 4px; }
+.predbar.ov .pseg b { font-size: 12px; }
+.ovscores { display: flex; flex-wrap: wrap; gap: 6px; }
+.csbox { display: inline-flex; flex-direction: column; align-items: center; min-width: 42px; padding: 4px 6px;
+  background: var(--surface-2); border: 1px solid var(--border); border-radius: 8px; font-family: var(--font-mono); font-size: 12px; }
+.csbox i { font-style: normal; color: var(--faint); font-size: 10px; margin-top: 1px; }
+.csbox.hit { background: rgb(74 222 128 / .16); border-color: #4ade80; color: #bbf7d0; }
+.csbox.hit i { color: #86efac; }
+.csbox.miss { background: rgb(248 113 113 / .10); border-color: rgb(248 113 113 / .4); color: #fca5a5; flex-direction: row; gap: 4px; }
+
+/* ---- Methodology page ---- */
+.methodology .mdtoc { display: flex; flex-wrap: wrap; gap: 8px 16px; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 12px; padding: 12px 14px; margin-bottom: 16px; }
+.methodology .mdtoc a { color: var(--home-text); text-decoration: none; font-size: 13px; }
+.methodology .mdtoc a:hover { text-decoration: underline; }
+.methodology .mdsec { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 14px 18px; margin-bottom: 14px; }
+.methodology .mdsec h2 { font-size: 17px; margin: 0 0 10px; color: var(--text); }
+.methodology .mdsec p { line-height: 1.7; color: var(--text-soft); margin: 8px 0; }
+.methodology .mdsec ul { margin: 8px 0; padding-left: 20px; }
+.methodology .mdsec li { line-height: 1.7; color: var(--text-soft); margin: 4px 0; }
+.methodology .mdsec code { font-family: var(--font-mono); background: var(--surface-2); padding: 1px 5px; border-radius: 5px; font-size: 12px; }
+.mdformula { font-family: var(--font-mono); background: var(--bg-deep); border: 1px solid var(--border-strong);
+  border-radius: 8px; padding: 10px 14px; margin: 10px 0; color: var(--home-text); font-size: 13px; overflow-x: auto; white-space: nowrap; }
