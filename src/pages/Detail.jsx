@@ -556,11 +556,13 @@ function ShotProfile({ sp, home, away }) {
   if (!H?.att && !A?.att) return null
   const P = v => v == null ? '—' : Math.round(v * 100) + '%'
   const N = v => v == null ? '—' : v
-  const attRows = [['场均射门', 'perGame', N], ['射正率', 'onTargetPct', P], ['禁区内占比', 'inBoxPct', P],
-    ['远射占比', 'longPct', P], ['xG / 射门', 'xgPerShot', N], ['定位球占比', 'setPiecePct', P],
+  const attRows = [['场均射门', 'perGame', N], ['射正率', 'onTargetPct', P], ['被封堵率', 'blockedPct', P],
+    ['禁区内占比', 'inBoxPct', P], ['远射占比', 'longPct', P], ['头球占比', 'headerPct', P],
+    ['xG / 射门', 'xgPerShot', N], ['定位球占比', 'setPiecePct', P],
     ['绝佳机会 / 场', 'bigChancesPerGame', N], ['把握度 (进球−xG)', 'finishing', N]]
   const defRows = [['场均被射门', 'perGame', N], ['被射正率', 'onTargetPct', P], ['对手禁区内占比', 'inBoxPct', P],
-    ['对手远射占比', 'longPct', P], ['被创造 xG / 场', 'xgPerGame', N], ['对手把握度', 'finishing', N]]
+    ['对手远射占比', 'longPct', P], ['对手头球占比', 'headerPct', P], ['被创造 xG / 场', 'xgPerGame', N],
+    ['对手把握度', 'finishing', N]]
   const Tbl = ({ rows, side }) => (
     <table className="st spt"><thead><tr><th>指标</th><th>{nm(home)}</th><th>{nm(away)}</th></tr></thead>
       <tbody>{rows.map(([lbl, k, f]) => (
@@ -575,6 +577,26 @@ function ShotProfile({ sp, home, away }) {
         <div><div className="spthd">防守（被对手射门 = 失守）</div><Tbl rows={defRows} side="def" /></div>
       </div>
       <div className="dim small">射门/xG 为 FotMob 实测。<b>远射占比</b>高 = 进攻偏外围、缺穿透；<b>禁区内占比</b>高 = 能打进危险区。防守看「对手禁区内占比」越低、「对手远射占比」越高 = 越能把对手逼到外围；「对手把握度」为负 = 对手在你门前低效（含门将/运气）。小样本仅供参考，<b>不计入</b>模型概率。</div>
+    </Collapse>
+  )
+}
+
+// One finished match's own shot split per team (本场), complements the tournament profile.
+function MatchShots({ sb, home, away }) {
+  if (!sb?.home && !sb?.away) return null
+  const P = v => v == null ? '—' : Math.round(v * 100) + '%'
+  const N = v => v == null ? '—' : v
+  const rows = [['射门', 'shots', N], ['射正率', 'onTargetPct', P], ['被封堵率', 'blockedPct', P],
+    ['禁区内占比', 'inBoxPct', P], ['远射占比', 'longPct', P], ['头球占比', 'headerPct', P],
+    ['定位球占比', 'setPiecePct', P], ['xG', 'xgPerGame', N], ['把握度 (进球−xG)', 'finishing', N]]
+  return (
+    <Collapse title={<>🎯 本场射门细分 <SrcTag k="wc" /></>} cls="shotprofile" defaultOpen={false}>
+      <table className="st spt"><thead><tr><th>指标</th><th>{nm(home)}</th><th>{nm(away)}</th></tr></thead>
+        <tbody>{rows.map(([lbl, k, f]) => (
+          <tr key={lbl}><td data-label="指标">{lbl}</td>
+            <td data-label={nm(home)}>{f(sb.home?.[k])}</td>
+            <td data-label={nm(away)}>{f(sb.away?.[k])}</td></tr>))}</tbody></table>
+      <div className="dim small">本场实测射门拆解（FotMob）：xG = 本场预期进球；远射/头球/封堵占比反映进攻方式与对抗强度。</div>
     </Collapse>
   )
 }
@@ -619,7 +641,7 @@ export default function Detail() {
       {m.weather && m.weather.level !== 'none' && (
         <div className={`weatherbanner wx-${m.weather.level}`}>
           <div className="wxhead">
-            <span className="wxtags">🌡️ 天气提醒：{m.weather.tags.join(' · ')}</span>
+            <span className="wxtags">{m.weather.roof ? `🏟️ ${m.weather.roof === 'ac' ? '空调球场' : '有顶球场'}（天气影响减弱）：` : '🌡️ 天气提醒：'}{m.weather.tags.join(' · ')}</span>
             <span className="wxnums">{m.weather.temp}°C · 湿度 {m.weather.humidity}% · 风 {m.weather.wind} m/s{m.weather.precip > 0 ? ` · 降水 ${m.weather.precip}mm` : ''}</span>
           </div>
           <div className="wxnote">{m.weather.note}</div>
@@ -701,6 +723,7 @@ export default function Detail() {
       )}
 
       {m.shotProfile && <ShotProfile sp={m.shotProfile} home={m.home} away={m.away} />}
+      {m.shotBreakdown && <MatchShots sb={m.shotBreakdown} home={m.home} away={m.away} />}
 
       <Collapse title={<>赛前情报 <SrcTag k="mix" /></>} cls="intel" defaultOpen={false}>
         <div className="row"><span className="k">{tn(m.home)} 近况</span><Form list={sc.formHome} /></div>
@@ -736,6 +759,7 @@ export default function Detail() {
         {m.referee && <div className="row"><span className="k">主裁判</span><div className="dim">{m.referee.name}{m.referee.country ? `（${m.referee.country}）` : ''}{m.finished ? '' : '（赛前指派）'}</div></div>}
         {m.weather && <div className="row"><span className="k">天气 / 场地</span><div className="dim">
           {m.weather.temp}°C · 湿度 {m.weather.humidity}% · 风 {m.weather.wind} m/s{m.weather.precip > 0 ? ` · 降水 ${m.weather.precip}mm` : ''}
+          {m.weather.roof && <span className="roofchip">{m.weather.roof === 'ac' ? '🏟️ 空调/可闭顶' : '🏟️ 有顶/可闭顶'}</span>}
           {m.weather.tags.length > 0 && <> · <b>{m.weather.tags.join(' / ')}</b></>}
           <div className="small">{m.weather.note}</div>
         </div></div>}

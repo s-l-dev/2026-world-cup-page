@@ -3927,3 +3927,9 @@ header h1 {
 .spthd { font-weight: 600; color: var(--text-soft); margin-bottom: 6px; }
 .spt th:first-child, .spt td:first-child { text-align: left; color: var(--muted); }
 .spt th:not(:first-child), .spt td:not(:first-child) { text-align: right; font-family: var(--font-mono); }
+
+/* ---- Indoor/roofed venue weather styling ---- */
+.weatherbanner.wx-indoor { background: rgb(78 161 255 / .10); border-color: rgb(78 161 255 / .45); }
+.weatherbanner.wx-indoor .wxtags { color: var(--home-text); }
+.roofchip { display: inline-block; margin-left: 6px; padding: 1px 7px; border-radius: 999px;
+  background: rgb(78 161 255 / .14); color: var(--home-text); font-size: 11px; }
