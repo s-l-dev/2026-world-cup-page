@@ -3942,3 +3942,18 @@ header h1 {
 .bteam.adv { font-weight: 700; }
 .bteam.adv .bname { color: var(--text); }
 .bpen { font-size: 10px; color: var(--muted); text-align: right; }
+
+/* ---- 投注建议 board ---- */
+.betsboard { display: flex; flex-direction: column; gap: 10px; }
+.betsval { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; font-size: 13px; color: var(--text-soft); }
+.betlist { display: flex; flex-direction: column; gap: 8px; }
+.betrow { display: grid; grid-template-columns: 1.4fr 1fr 1.6fr; gap: 8px; align-items: center;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px;
+  text-decoration: none; color: var(--text); }
+.betrow:hover { border-color: var(--border-strong); background: var(--surface-2); }
+.betmatch { display: flex; align-items: center; gap: 5px; font-weight: 600; flex-wrap: wrap; }
+.betpick { font-size: 14px; } .betpick .betodds { font-family: var(--font-mono); color: var(--home-text); margin-left: 4px; }
+.betmeta { display: flex; flex-wrap: wrap; gap: 4px 12px; justify-content: flex-end; font-size: 12px; color: var(--muted); }
+.betmeta .betstake { color: #86efac; font-weight: 600; }
+.betmeta .betev.hot { color: #fca5a5; }
+@media (max-width: 640px) { .betrow { grid-template-columns: 1fr; } .betmeta { justify-content: flex-start; } }
