@@ -670,6 +670,21 @@ export default function Detail() {
         </section>
       )}
 
+      {m.story && m.story.length > 0 && (
+        <Collapse title={<>📜 文字复盘（事件流） <SrcTag k="wc" /></>} cls="story" defaultOpen={false}>
+          <div className="storyflow">
+            {m.story.map((s, i) => (
+              <div className={`storyrow ${s.score ? 'goal' : ''}`} key={i}>
+                <span className="stico">{s.icon}</span>
+                <span className="sttext">{s.text}</span>
+                {s.score && <span className="stscore">{s.score}</span>}
+              </div>
+            ))}
+          </div>
+          <div className="dim small">由本场进球/射门/牌/换人事件自动编织（免 token、稳定）；非 FotMob 逐句解说原文。</div>
+        </Collapse>
+      )}
+
       {p && (
         <section className="card prediction">
           <h3><span>模型预测 <SrcTag k="model" /></span>

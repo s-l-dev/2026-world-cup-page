@@ -3988,3 +3988,13 @@ header h1 {
 .trustchip.validated { background: rgb(74 222 128 / .15); color: #86efac; }
 .trustchip.unproven { background: rgb(148 163 184 / .15); color: var(--muted); }
 .trustchip.thin { background: var(--surface-3); color: var(--faint); }
+
+/* ---- 文字复盘 event flow ---- */
+.storyflow { display: flex; flex-direction: column; gap: 3px; }
+.storyrow { display: flex; align-items: baseline; gap: 8px; padding: 5px 8px; border-radius: 6px; font-size: 13px; line-height: 1.5; }
+.storyrow:nth-child(odd) { background: var(--surface-2); }
+.storyrow.goal { background: rgb(74 222 128 / .12); font-weight: 600; }
+.storyrow .stico { flex: 0 0 auto; }
+.storyrow .sttext { flex: 1; color: var(--text-soft); }
+.storyrow.goal .sttext { color: var(--text); }
+.storyrow .stscore { font-family: var(--font-mono); font-weight: 700; color: #86efac; }
