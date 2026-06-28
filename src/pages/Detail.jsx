@@ -559,10 +559,11 @@ function ShotProfile({ sp, home, away }) {
   const attRows = [['场均射门', 'perGame', N], ['射正率', 'onTargetPct', P], ['被封堵率', 'blockedPct', P],
     ['禁区内占比', 'inBoxPct', P], ['远射占比', 'longPct', P], ['头球占比', 'headerPct', P],
     ['xG / 射门', 'xgPerShot', N], ['定位球占比', 'setPiecePct', P],
-    ['绝佳机会 / 场', 'bigChancesPerGame', N], ['把握度 (进球−xG)', 'finishing', N]]
+    ['绝佳机会 / 场', 'bigChancesPerGame', N], ['绝佳机会错失 / 场', 'bigChancesMissedPerGame', N],
+    ['把握度 (进球−xG)', 'finishing', N]]
   const defRows = [['场均被射门', 'perGame', N], ['被射正率', 'onTargetPct', P], ['对手禁区内占比', 'inBoxPct', P],
     ['对手远射占比', 'longPct', P], ['对手头球占比', 'headerPct', P], ['被创造 xG / 场', 'xgPerGame', N],
-    ['对手把握度', 'finishing', N]]
+    ['对手绝佳机会 / 场', 'bigChancesPerGame', N], ['对手把握度', 'finishing', N]]
   const Tbl = ({ rows, side }) => (
     <table className="st spt"><thead><tr><th>指标</th><th>{nm(home)}</th><th>{nm(away)}</th></tr></thead>
       <tbody>{rows.map(([lbl, k, f]) => (
@@ -576,7 +577,7 @@ function ShotProfile({ sp, home, away }) {
         <div><div className="spthd">进攻（己方射门）</div><Tbl rows={attRows} side="att" /></div>
         <div><div className="spthd">防守（被对手射门 = 失守）</div><Tbl rows={defRows} side="def" /></div>
       </div>
-      <div className="dim small">射门/xG 为 FotMob 实测。<b>远射占比</b>高 = 进攻偏外围、缺穿透；<b>禁区内占比</b>高 = 能打进危险区。防守看「对手禁区内占比」越低、「对手远射占比」越高 = 越能把对手逼到外围；「对手把握度」为负 = 对手在你门前低效（含门将/运气）。小样本仅供参考，<b>不计入</b>模型概率。</div>
+      <div className="dim small">射门/xG/<b>绝佳机会</b>均为 FotMob 官方实测（绝佳机会=官方 Big chances 标记，非估算）。<b>远射占比</b>高 = 进攻偏外围、缺穿透；<b>禁区内占比</b>高 = 能打进危险区。防守看「对手禁区内占比」越低、「对手远射占比」越高 = 越能把对手逼到外围；「对手把握度」为负 = 对手在你门前低效（含门将/运气）。小样本仅供参考，<b>不计入</b>模型概率。</div>
     </Collapse>
   )
 }
@@ -588,7 +589,8 @@ function MatchShots({ sb, home, away }) {
   const N = v => v == null ? '—' : v
   const rows = [['射门', 'shots', N], ['射正率', 'onTargetPct', P], ['被封堵率', 'blockedPct', P],
     ['禁区内占比', 'inBoxPct', P], ['远射占比', 'longPct', P], ['头球占比', 'headerPct', P],
-    ['定位球占比', 'setPiecePct', P], ['xG', 'xgPerGame', N], ['把握度 (进球−xG)', 'finishing', N]]
+    ['定位球占比', 'setPiecePct', P], ['xG', 'xgPerGame', N], ['绝佳机会', 'bigChancesPerGame', N],
+    ['绝佳机会错失', 'bigChancesMissedPerGame', N], ['把握度 (进球−xG)', 'finishing', N]]
   return (
     <Collapse title={<>🎯 本场射门细分 <SrcTag k="wc" /></>} cls="shotprofile" defaultOpen={false}>
       <table className="st spt"><thead><tr><th>指标</th><th>{nm(home)}</th><th>{nm(away)}</th></tr></thead>
