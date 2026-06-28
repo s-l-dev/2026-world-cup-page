@@ -3933,3 +3933,12 @@ header h1 {
 .weatherbanner.wx-indoor .wxtags { color: var(--home-text); }
 .roofchip { display: inline-block; margin-left: 6px; padding: 1px 7px; border-radius: 999px;
   background: rgb(78 161 255 / .14); color: var(--home-text); font-size: 11px; }
+
+/* ---- Knockout result split (90min / ET / penalties) ---- */
+.score .kotag { font-style: normal; font-size: 10px; margin-left: 5px; padding: 0 5px; border-radius: 999px;
+  background: var(--surface-3); color: var(--muted); vertical-align: middle; }
+.scorebox .kodetail { display: flex; flex-direction: column; gap: 1px; margin-top: 3px; font-size: 11px; color: var(--muted); }
+.scorebox .kodetail .adv { color: #86efac; font-weight: 600; }
+.bteam.adv { font-weight: 700; }
+.bteam.adv .bname { color: var(--text); }
+.bpen { font-size: 10px; color: var(--muted); text-align: right; }

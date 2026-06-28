@@ -84,7 +84,7 @@ function MatchRow({ m }) {
       </div>
       <div className="mright">
         {m.finished
-          ? <span className="score">{m.result.h}-{m.result.a}</span>
+          ? <span className="score">{m.result.h}-{m.result.a}{m.resultDetail && <em className="kotag">{m.resultDetail.pen ? `点球 ${m.resultDetail.pen.h}-${m.resultDetail.pen.a}` : '加时'}</em>}</span>
           : (pr
             ? <span className="pred" title={`${tn(m.home)} ${pct(pr.x12.home)} / 平 ${pct(pr.x12.draw)} / ${tn(m.away)} ${pct(pr.x12.away)}`}>
               {predSegs.map(([k, v, lbl]) => (
@@ -118,10 +118,12 @@ function ByDate({ matches, reverse = false }) {
 }
 
 function BCard({ m }) {
+  const adv = m.resultDetail?.advancer
   return (
     <Link to={`/m/${m.id}`} target="_blank" rel="noopener" className={`bmatch ${m.result ? 'done' : 'todo'}`}>
-      <div className="bteam"><span className="bname"><SquadCrest code={m.home} className="tiny" />{nm(m.home)}</span>{m.result && <b>{m.result.h}</b>}</div>
-      <div className="bteam"><span className="bname"><SquadCrest code={m.away} className="tiny" />{nm(m.away)}</span>{m.result && <b>{m.result.a}</b>}</div>
+      <div className={`bteam ${adv === m.home ? 'adv' : ''}`}><span className="bname"><SquadCrest code={m.home} className="tiny" />{nm(m.home)}</span>{m.result && <b>{m.result.h}</b>}</div>
+      <div className={`bteam ${adv === m.away ? 'adv' : ''}`}><span className="bname"><SquadCrest code={m.away} className="tiny" />{nm(m.away)}</span>{m.result && <b>{m.result.a}</b>}</div>
+      {m.resultDetail?.pen && <div className="bpen">点球 {m.resultDetail.pen.h}-{m.resultDetail.pen.a}</div>}
       <div className="bdate">{bjDate(m.kickoff || m.date + 'T00:00:00Z').slice(5)}</div>
     </Link>
   )

@@ -629,7 +629,12 @@ export default function Detail() {
             {m.finished
               ? <><b>{m.result.h}</b><span>-</span><b>{m.result.a}</b></>
               : <span className="vsmark">VS</span>}
-            <small>{m.finished ? 'Full time' : 'Preview'}</small>
+            <small>{m.finished ? (m.resultDetail ? '90 分钟' : 'Full time') : 'Preview'}</small>
+            {m.resultDetail && <div className="kodetail">
+              {m.resultDetail.aet && <span>加时 {m.resultDetail.aet.h}-{m.resultDetail.aet.a}</span>}
+              {m.resultDetail.pen && <span>点球 {m.resultDetail.pen.h}-{m.resultDetail.pen.a}</span>}
+              {m.resultDetail.advancer && <span className="adv">{nm(m.resultDetail.advancer)} 晋级</span>}
+            </div>}
           </div>
           <Link className="side away teamjump" to={`/players?team=${m.away}`} target="_blank" rel="noopener" title={`查看 ${nm(m.away)} 球员`}>
             <Crest code={m.away} className="xl" />
