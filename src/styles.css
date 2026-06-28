@@ -3976,3 +3976,9 @@ header h1 {
 .trkrec.win { border-left: 3px solid #4ade80; } .trkrec.loss { border-left: 3px solid #f87171; }
 .trkrec .trpnl { text-align: right; font-family: var(--font-mono); }
 @media (max-width: 640px) { .trkcards { grid-template-columns: 1fr; } .trkrec { grid-template-columns: 1fr; gap: 2px; } .trkrec .trpnl { text-align: left; } }
+
+/* ---- 投注建议 by-market split ---- */
+.trkmkt { margin-top: 4px; }
+.trksub2 { font-size: 13px; color: var(--text-soft); margin-bottom: 6px; }
+.trkmkt .st td.pos, .trkmkt .st td.neg { font-family: var(--font-mono); }
+.trkmkt .st td.pos { color: #86efac; } .trkmkt .st td.neg { color: #fca5a5; }

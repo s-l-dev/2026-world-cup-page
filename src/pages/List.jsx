@@ -31,6 +31,22 @@ function BetsTrack({ t }) {
     <div className="betstrack">
       <div className="trksub">📈 建议跟踪 · 按建议平注的已结算虚拟战绩</div>
       <div className="trkcards"><Card title="整体" s={t.overall} /><Card title="小组赛" s={t.group} /><Card title="淘汰赛" s={t.knockout} /></div>
+      {t.byMarket && <div className="trkmkt">
+        <div className="trksub2">按盘口拆分（看边际真正在哪——以 CLV 为准，ROI 易被运气带偏）</div>
+        <table className="st"><thead><tr><th>盘口</th><th>注数</th><th>胜负</th><th>ROI/注</th><th>打过收盘</th><th>平均CLV</th></tr></thead>
+          <tbody>{[['h2h', '胜平负'], ['totals', '大小球'], ['spreads', '让球']].map(([k, lbl]) => {
+            const s = t.byMarket[k]
+            return <tr key={k}><td data-label="盘口">{lbl}</td>
+              {s ? <>
+                <td data-label="注数">{s.n}</td><td data-label="胜负">{s.w}-{s.l}</td>
+                <td data-label="ROI/注" className={s.roi >= 0 ? 'pos' : 'neg'}>{(s.roi * 100).toFixed(1)}%</td>
+                <td data-label="打过收盘">{s.posClvRate != null ? pct(s.posClvRate) : '—'}</td>
+                <td data-label="平均CLV" className={s.meanClv >= 0 ? 'pos' : 'neg'}>{s.meanClv != null ? (s.meanClv * 100).toFixed(2) + '%' : '—'}</td>
+              </> : <td colSpan="5" className="dim">暂无</td>}
+            </tr>
+          })}</tbody></table>
+        <div className="dim small">⚠ 样本小、方差大。<b>CLV（打过收盘价）比 ROI 可信</b>——ROI 高但 CLV≈0/打过收盘≈50% 多为运气。本届目前 CLV 正向集中在大小球/让球，与"软盘无边际"的旧结论相反，需淘汰赛继续验证。</div>
+      </div>}
       {t.recent.length > 0 && <div className="trklist">
         {t.recent.map((r, i) => (
           <Link to={`/m/${r.id}`} target="_blank" rel="noopener" className={`trkrec ${r.won ? 'win' : 'loss'}`} key={i}>
