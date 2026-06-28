@@ -548,6 +548,37 @@ function Collapse({ title, sub, cls = '', defaultOpen = false, children }) {
   )
 }
 
+// Attacking + defensive shot profile (tournament-to-date, as-of kickoff). Attack = the side's own
+// shots; defense = shots it concedes. Helps read the matchup: in-box vs 远射, shot quality (xG/shot),
+// set-piece reliance, big chances, finishing — and the defensive mirror.
+function ShotProfile({ sp, home, away }) {
+  const H = sp?.home, A = sp?.away
+  if (!H?.att && !A?.att) return null
+  const P = v => v == null ? '—' : Math.round(v * 100) + '%'
+  const N = v => v == null ? '—' : v
+  const attRows = [['场均射门', 'perGame', N], ['射正率', 'onTargetPct', P], ['禁区内占比', 'inBoxPct', P],
+    ['远射占比', 'longPct', P], ['xG / 射门', 'xgPerShot', N], ['定位球占比', 'setPiecePct', P],
+    ['绝佳机会 / 场', 'bigChancesPerGame', N], ['把握度 (进球−xG)', 'finishing', N]]
+  const defRows = [['场均被射门', 'perGame', N], ['被射正率', 'onTargetPct', P], ['对手禁区内占比', 'inBoxPct', P],
+    ['对手远射占比', 'longPct', P], ['被创造 xG / 场', 'xgPerGame', N], ['对手把握度', 'finishing', N]]
+  const Tbl = ({ rows, side }) => (
+    <table className="st spt"><thead><tr><th>指标</th><th>{nm(home)}</th><th>{nm(away)}</th></tr></thead>
+      <tbody>{rows.map(([lbl, k, f]) => (
+        <tr key={lbl}><td data-label="指标">{lbl}</td>
+          <td data-label={nm(home)}>{f(H?.[side]?.[k])}</td>
+          <td data-label={nm(away)}>{f(A?.[side]?.[k])}</td></tr>))}</tbody></table>
+  )
+  return (
+    <Collapse title={<>🎯 进攻与防守细分 <SrcTag k="wc" /></>} sub={`本届至今 · 主 ${H?.n || 0} 场 / 客 ${A?.n || 0} 场`} cls="shotprofile" defaultOpen={false}>
+      <div className="sptwrap">
+        <div><div className="spthd">进攻（己方射门）</div><Tbl rows={attRows} side="att" /></div>
+        <div><div className="spthd">防守（被对手射门 = 失守）</div><Tbl rows={defRows} side="def" /></div>
+      </div>
+      <div className="dim small">射门/xG 为 FotMob 实测。<b>远射占比</b>高 = 进攻偏外围、缺穿透；<b>禁区内占比</b>高 = 能打进危险区。防守看「对手禁区内占比」越低、「对手远射占比」越高 = 越能把对手逼到外围；「对手把握度」为负 = 对手在你门前低效（含门将/运气）。小样本仅供参考，<b>不计入</b>模型概率。</div>
+    </Collapse>
+  )
+}
+
 export default function Detail() {
   const { id } = useParams()
   const data = useData()
@@ -668,6 +699,8 @@ export default function Detail() {
           <div className="dim small">本届实测均值（多为小样本，参考为主）；绿色 = 该项数值更优（已考虑「越低越好」的项如失 xG、PPDA）。</div>
         </Collapse>
       )}
+
+      {m.shotProfile && <ShotProfile sp={m.shotProfile} home={m.home} away={m.away} />}
 
       <Collapse title={<>赛前情报 <SrcTag k="mix" /></>} cls="intel" defaultOpen={false}>
         <div className="row"><span className="k">{tn(m.home)} 近况</span><Form list={sc.formHome} /></div>
