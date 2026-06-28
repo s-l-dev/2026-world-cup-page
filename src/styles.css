@@ -3982,3 +3982,9 @@ header h1 {
 .trksub2 { font-size: 13px; color: var(--text-soft); margin-bottom: 6px; }
 .trkmkt .st td.pos, .trkmkt .st td.neg { font-family: var(--font-mono); }
 .trkmkt .st td.pos { color: #86efac; } .trkmkt .st td.neg { color: #fca5a5; }
+
+/* ---- per-pick market-trust chip ---- */
+.trustchip { display: inline-block; margin-left: 8px; padding: 1px 7px; border-radius: 999px; font-size: 10px; vertical-align: middle; }
+.trustchip.validated { background: rgb(74 222 128 / .15); color: #86efac; }
+.trustchip.unproven { background: rgb(148 163 184 / .15); color: var(--muted); }
+.trustchip.thin { background: var(--surface-3); color: var(--faint); }

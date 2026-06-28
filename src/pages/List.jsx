@@ -66,7 +66,12 @@ function BetRow({ b }) {
   return (
     <Link to={`/m/${b.id}`} target="_blank" rel="noopener" className="betrow">
       <div className="betmatch"><SquadCrest code={b.home} className="tiny" />{nm(b.home)} <span className="dim">vs</span> {nm(b.away)}<SquadCrest code={b.away} className="tiny" /></div>
-      <div className="betpick"><b>{sel}</b> <span className="betodds">@{b.odds}</span></div>
+      <div className="betpick"><b>{sel}</b> <span className="betodds">@{b.odds}</span>
+        <span className={`trustchip ${b.trust}`} title="基于该盘口的历史 CLV（打过收盘价比例）">
+          {b.trust === 'validated' ? '盘口已验证' : b.trust === 'unproven' ? 'CLV 未验证' : '样本不足'}
+          {b.trustPosClvRate != null ? ` · ${pct(b.trustPosClvRate)}打过收盘` : ''}
+        </span>
+      </div>
       <div className="betmeta">
         <span>模型 {pct(b.modelProb)} / 市场 {pct(b.marketProb)}</span>
         <span className="betstake">建议仓位 {b.stakePct}%</span>
