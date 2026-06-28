@@ -4,13 +4,49 @@ import { useData, pct, bj, bjTime, bjDate, nm, tn, Crest, SquadCrest, TeamName }
 
 const TABS = [['overview', '预测战绩'], ['bets', '投注建议'], ['standings', '小组积分'], ['group', '小组赛程'], ['ko', '淘汰赛'], ['bracket', '晋级图']]
 
-// One value pick: model's would-bet +EV recommendation (still shadow). Stake = 1/4-Kelly % of
-// bankroll, capped 1%. Big EV on long odds is flagged — those are usually noise, don't chase.
-function BetRow({ b }) {
-  const sel = b.market === 'h2h'
+// Pick label shared by the recommendation rows and the track record.
+function betSelLabel(b) {
+  return b.market === 'h2h'
     ? (b.selection === 'home' ? tn(b.home) : b.selection === 'away' ? tn(b.away) : '平局')
     : b.market === 'totals' ? `大小球 ${b.selection === 'over' ? '大' : '小'} ${b.line}`
       : `让球 ${tn(b.selection === 'home' ? b.home : b.away)} ${b.line}`
+}
+
+// Virtual track record of the would-bet picks (flat-stake), overall + group vs knockout split.
+function BetsTrack({ t }) {
+  if (!t || !t.overall) return null
+  const Card = ({ title, s }) => (
+    <div className={`trkcard ${s ? '' : 'empty'}`}>
+      <div className="trkt">{title}</div>
+      {s ? <>
+        <div className="trkbig"><b className={s.roi >= 0 ? 'pos' : 'neg'}>{s.roi >= 0 ? '+' : ''}{(s.roi * 100).toFixed(1)}%</b><span className="dim small">ROI</span></div>
+        <div className="trkrow"><span>{s.n} 注 · {s.w}胜{s.l}负</span></div>
+        <div className="trkrow"><span>净收益</span><b className={s.net >= 0 ? 'pos' : 'neg'}>{s.net >= 0 ? '+' : ''}{s.net} 注</b></div>
+        <div className="trkrow"><span>打过收盘</span><b>{s.posClvRate != null ? pct(s.posClvRate) : '—'}</b></div>
+        <div className="trkrow"><span>平均 CLV</span><b>{s.meanClv != null ? (s.meanClv * 100).toFixed(2) + '%' : '—'}</b></div>
+      </> : <div className="dim" style={{ padding: '8px 0' }}>暂无已结算</div>}
+    </div>
+  )
+  return (
+    <div className="betstrack">
+      <div className="trksub">📈 建议跟踪 · 按建议平注的已结算虚拟战绩</div>
+      <div className="trkcards"><Card title="整体" s={t.overall} /><Card title="小组赛" s={t.group} /><Card title="淘汰赛" s={t.knockout} /></div>
+      {t.recent.length > 0 && <div className="trklist">
+        {t.recent.map((r, i) => (
+          <Link to={`/m/${r.id}`} target="_blank" rel="noopener" className={`trkrec ${r.won ? 'win' : 'loss'}`} key={i}>
+            <span className="trm">{nm(r.home)} <b>{r.score}</b> {nm(r.away)}</span>
+            <span className="trp">{betSelLabel(r)} @{r.odds}</span>
+            <span className="trpnl">{r.won ? '✓' : '✗'} {r.pnl >= 0 ? '+' : ''}{r.pnl}{r.clv != null ? ` · CLV ${(r.clv * 100).toFixed(1)}%` : ''}</span>
+          </Link>
+        ))}
+      </div>}
+      <div className="dim small">单位 = 1 注（平注）。<b>淘汰赛栏会随比赛结算逐步填充</b>——这就是检验小组赛正边际是否延续的地方。CLV&gt;0 = 拿到的价格优于收盘价。</div>
+    </div>
+  )
+}
+
+function BetRow({ b }) {
+  const sel = betSelLabel(b)
   return (
     <Link to={`/m/${b.id}`} target="_blank" rel="noopener" className="betrow">
       <div className="betmatch"><SquadCrest code={b.home} className="tiny" />{nm(b.home)} <span className="dim">vs</span> {nm(b.away)}<SquadCrest code={b.away} className="tiny" /></div>
@@ -24,7 +60,7 @@ function BetRow({ b }) {
   )
 }
 
-function Bets({ bets, meta }) {
+function Bets({ bets, meta, track }) {
   if (!meta) return <div className="note">投注建议数据未生成。</div>
   const picks = bets || []
   return (
@@ -33,9 +69,11 @@ function Bets({ bets, meta }) {
         小组赛验证：会下注样本 <b>{meta.validatedSample}/{meta.gateTarget}</b> · 打过收盘价 <b>{pct(meta.positiveClvRate)}</b> · 平均 CLV <b>{(meta.meanClv * 100).toFixed(2)}%</b> · 模型仍 <b>shadow</b>
       </div>
       <div className="note">{meta.note} 仓位 = 占总资金的 1/4 凯利建议（封顶 1%）；<b>高赔/大 EV 多为噪声，勿追</b>；非投注指令，自负盈亏。</div>
+      <div className="betsub">🎯 待下注价值票（上游比赛）</div>
       {picks.length === 0
-        ? <div className="dim" style={{ padding: '16px 0' }}>当前无 +EV 价值票——等开盘赔率到位、或模型与市场出现足够分歧时才会出现（模型很挑，多数场次与市场一致）。</div>
+        ? <div className="dim" style={{ padding: '12px 0' }}>当前无 +EV 价值票——等开盘赔率到位、或模型与市场出现足够分歧时才会出现（模型很挑，多数场次与市场一致）。</div>
         : <div className="betlist">{picks.map((b, i) => <BetRow b={b} key={i} />)}</div>}
+      <BetsTrack t={track} />
     </div>
   )
 }
@@ -235,7 +273,7 @@ export default function List() {
       <div className="tabs">{TABS.map(([k, lbl]) => <button key={k} className={tab === k ? 'on' : ''} onClick={() => setTab(k)}>{lbl}</button>)}</div>
 
       {tab === 'overview' && <Overview ov={data.overview} />}
-      {tab === 'bets' && <Bets bets={data.bets} meta={data.betsMeta} />}
+      {tab === 'bets' && <Bets bets={data.bets} meta={data.betsMeta} track={data.betsTrack} />}
       {tab === 'standings' && (
         <div className="groups">
           {Object.entries(data.standings).map(([gn, teams]) => (

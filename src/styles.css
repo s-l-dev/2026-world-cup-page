@@ -3957,3 +3957,22 @@ header h1 {
 .betmeta .betstake { color: #86efac; font-weight: 600; }
 .betmeta .betev.hot { color: #fca5a5; }
 @media (max-width: 640px) { .betrow { grid-template-columns: 1fr; } .betmeta { justify-content: flex-start; } }
+
+/* ---- 投注建议 track record ---- */
+.betsub { font-weight: 600; color: var(--text-soft); margin-top: 4px; }
+.betstrack { margin-top: 14px; display: flex; flex-direction: column; gap: 8px; }
+.trksub { font-weight: 600; color: var(--text-soft); }
+.trkcards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.trkcard { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 10px 12px; }
+.trkcard.empty { opacity: .7; }
+.trkcard .trkt { font-weight: 600; margin-bottom: 4px; }
+.trkbig { display: flex; align-items: baseline; gap: 6px; }
+.trkbig b { font-size: 22px; } .trkbig b.pos { color: #86efac; } .trkbig b.neg { color: #fca5a5; }
+.trkrow { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); margin-top: 2px; }
+.trkrow b.pos { color: #86efac; } .trkrow b.neg { color: #fca5a5; }
+.trklist { display: flex; flex-direction: column; gap: 4px; margin-top: 4px; }
+.trkrec { display: grid; grid-template-columns: 1.3fr 1.3fr 1fr; gap: 8px; align-items: center; padding: 6px 10px;
+  border-radius: 8px; background: var(--surface); border: 1px solid var(--border); text-decoration: none; color: var(--text-soft); font-size: 12px; }
+.trkrec.win { border-left: 3px solid #4ade80; } .trkrec.loss { border-left: 3px solid #f87171; }
+.trkrec .trpnl { text-align: right; font-family: var(--font-mono); }
+@media (max-width: 640px) { .trkcards { grid-template-columns: 1fr; } .trkrec { grid-template-columns: 1fr; gap: 2px; } .trkrec .trpnl { text-align: left; } }
