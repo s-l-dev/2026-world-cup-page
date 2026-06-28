@@ -3910,3 +3910,13 @@ header h1 {
 .methodology .mdsec code { font-family: var(--font-mono); background: var(--surface-2); padding: 1px 5px; border-radius: 5px; font-size: 12px; }
 .mdformula { font-family: var(--font-mono); background: var(--bg-deep); border: 1px solid var(--border-strong);
   border-radius: 8px; padding: 10px 14px; margin: 10px 0; color: var(--home-text); font-size: 13px; overflow-x: auto; white-space: nowrap; }
+
+/* ---- Match-day weather reminder ---- */
+.weatherbanner { border-radius: 12px; padding: 12px 14px; margin: 10px 0; border: 1px solid var(--border-strong); }
+.weatherbanner.wx-notable { background: rgb(255 156 74 / .10); border-color: rgb(255 156 74 / .45); }
+.weatherbanner.wx-severe { background: rgb(248 113 113 / .12); border-color: rgb(248 113 113 / .5); }
+.weatherbanner .wxhead { display: flex; flex-wrap: wrap; gap: 6px 14px; align-items: baseline; justify-content: space-between; }
+.weatherbanner .wxtags { font-weight: 700; }
+.weatherbanner .wx-severe .wxtags { color: #fca5a5; }
+.weatherbanner .wxnums { font-family: var(--font-mono); font-size: 12px; color: var(--text-soft); }
+.weatherbanner .wxnote { line-height: 1.6; color: var(--text-soft); margin: 6px 0 4px; }

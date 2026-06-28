@@ -585,6 +585,17 @@ export default function Detail() {
 
       {m.stakes && <div className="stakes">🏆 {m.stakes}</div>}
 
+      {m.weather && m.weather.level !== 'none' && (
+        <div className={`weatherbanner wx-${m.weather.level}`}>
+          <div className="wxhead">
+            <span className="wxtags">🌡️ 天气提醒：{m.weather.tags.join(' · ')}</span>
+            <span className="wxnums">{m.weather.temp}°C · 湿度 {m.weather.humidity}% · 风 {m.weather.wind} m/s{m.weather.precip > 0 ? ` · 降水 ${m.weather.precip}mm` : ''}</span>
+          </div>
+          <div className="wxnote">{m.weather.note}</div>
+          <div className="dim small">天气仅作观赛/球探提醒，<b>不计入</b>模型预测（未拟合、对结果信号弱）。</div>
+        </div>
+      )}
+
       <div className="srclegend">
         数据来源：<SrcTag k="wc" />本届实测（FotMob）
         <SrcTag k="model" />长期实力评级（含本届，非纯本届）
@@ -690,6 +701,11 @@ export default function Detail() {
           return <div className="row"><span className="k">休整 / 旅程</span><div className="forms">{cx(tn(m.home), sc.matchCtx.home)}{cx(tn(m.away), sc.matchCtx.away)}</div></div>
         })()}
         {m.referee && <div className="row"><span className="k">主裁判</span><div className="dim">{m.referee.name}{m.referee.country ? `（${m.referee.country}）` : ''}{m.finished ? '' : '（赛前指派）'}</div></div>}
+        {m.weather && <div className="row"><span className="k">天气 / 场地</span><div className="dim">
+          {m.weather.temp}°C · 湿度 {m.weather.humidity}% · 风 {m.weather.wind} m/s{m.weather.precip > 0 ? ` · 降水 ${m.weather.precip}mm` : ''}
+          {m.weather.tags.length > 0 && <> · <b>{m.weather.tags.join(' / ')}</b></>}
+          <div className="small">{m.weather.note}</div>
+        </div></div>}
         <OddsBoard m={m} />
       </Collapse>
 
