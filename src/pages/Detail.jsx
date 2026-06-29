@@ -619,7 +619,7 @@ export default function Detail() {
       <BackLink />
       <header className="dhead">
         <h1 className="sr-only">{nm(m.home)} vs {nm(m.away)}</h1>
-        <div className="matchmeta">{bj(m.kickoff)}（北京时间） · 组{m.group || m.stage} · {m.finished ? '已完赛' : '未开赛'}</div>
+        <div className="matchmeta">{bj(m.kickoff)}（北京时间） · 组{m.group || m.stage} · {m.finished ? '已完赛' : '未开赛'}{m.venue ? ` · 🏟️ ${m.venue.name}（${m.venue.city}）${m.venue.roof === 'ac' ? ' 空调' : m.venue.roof === 'roof' ? ' 有顶' : ''}` : ''}</div>
         <div className="scoreboard">
           <Link className="side home teamjump" to={`/players?team=${m.home}`} target="_blank" rel="noopener" title={`查看 ${nm(m.home)} 球员`}>
             <Crest code={m.home} className="xl" />
@@ -779,11 +779,15 @@ export default function Detail() {
           return <div className="row"><span className="k">休整 / 旅程</span><div className="forms">{cx(tn(m.home), sc.matchCtx.home)}{cx(tn(m.away), sc.matchCtx.away)}</div></div>
         })()}
         {m.referee && <div className="row"><span className="k">主裁判</span><div className="dim">{m.referee.name}{m.referee.country ? `（${m.referee.country}）` : ''}{m.finished ? '' : '（赛前指派）'}</div></div>}
-        {m.weather && <div className="row"><span className="k">天气 / 场地</span><div className="dim">
-          {m.weather.temp}°C · 湿度 {m.weather.humidity}% · 风 {m.weather.wind} m/s{m.weather.precip > 0 ? ` · 降水 ${m.weather.precip}mm` : ''}
-          {m.weather.roof && <span className="roofchip">{m.weather.roof === 'ac' ? '🏟️ 空调/可闭顶' : '🏟️ 有顶/可闭顶'}</span>}
-          {m.weather.tags.length > 0 && <> · <b>{m.weather.tags.join(' / ')}</b></>}
-          <div className="small">{m.weather.note}</div>
+        {(m.venue || m.weather) && <div className="row"><span className="k">球场 / 天气</span><div className="dim">
+          {m.venue && <span><b>{m.venue.name}</b>（{m.venue.city}）{m.venue.roof && <span className="roofchip">{m.venue.roof === 'ac' ? '🏟️ 空调/可闭顶' : '🏟️ 有顶/可闭顶'}</span>}</span>}
+          {m.weather
+            ? <div className="small" style={{ marginTop: 3 }}>
+                {m.weather.temp}°C · 湿度 {m.weather.humidity}% · 风 {m.weather.wind} m/s{m.weather.precip > 0 ? ` · 降水 ${m.weather.precip}mm` : ''}
+                {m.weather.tags.length > 0 && <> · <b>{m.weather.tags.join(' / ')}</b></>}
+                <div>{m.weather.note}</div>
+              </div>
+            : <div className="small" style={{ marginTop: 3 }}>天气预报暂未覆盖（开赛约 16 天内才有），临近比赛会自动补上。</div>}
         </div></div>}
         <OddsBoard m={m} />
       </Collapse>
