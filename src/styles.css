@@ -2535,6 +2535,58 @@ header h1 {
 .mtbl tbody tr:last-child td { border-bottom: 0; }
 .card.market .note.small { margin-top: var(--space-3); line-height: 1.6; }
 
+/* ===== 逐场比分/盘口对冲方案 ===== */
+.card.scorebet .scorebetlead {
+  margin-bottom: var(--space-3);
+  color: var(--text-soft);
+  font-size: var(--fs-sm);
+  line-height: 1.6;
+}
+.scoreportfolio {
+  margin-top: var(--space-4);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--border);
+}
+.scorebetlead + .scoreportfolio {
+  margin-top: 0;
+}
+.scoreporthead {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  align-items: baseline;
+  margin-bottom: var(--space-2);
+  color: var(--text-soft);
+  font-size: var(--fs-sm);
+}
+.scoreporthead b {
+  color: var(--text);
+}
+.scoreporthead span {
+  color: var(--win-text);
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  font-weight: 800;
+}
+.scoreplantbl {
+  min-width: 760px;
+}
+.scoreplantbl td.stake {
+  color: var(--win-text);
+  font-family: var(--font-mono);
+  font-weight: 900;
+}
+.scoreplantbl td.plannote {
+  max-width: 260px;
+  color: var(--muted);
+  text-align: left;
+  white-space: normal;
+}
+.scoreplantbl th:nth-child(6),
+.scoreplantbl td:nth-child(6) {
+  text-align: left;
+}
+
 /* ===== 比分赔率 grid ===== */
 .scoreodds { margin-top: var(--space-3); }
 .scoreodds > .k { margin-bottom: var(--space-2); }
@@ -3982,6 +4034,26 @@ header h1 {
 .trksub2 { font-size: 13px; color: var(--text-soft); margin-bottom: 6px; }
 .trkmkt .st td.pos, .trkmkt .st td.neg { font-family: var(--font-mono); }
 .trkmkt .st td.pos { color: #86efac; } .trkmkt .st td.neg { color: #fca5a5; }
+
+/* ---- score/hedge portfolio returns ---- */
+.scoretrack { display: flex; flex-direction: column; gap: 10px; margin: 12px 0 4px; }
+.scoretrack.detailed { margin-top: 14px; }
+.scorehead { display: flex; justify-content: space-between; gap: 12px; align-items: flex-start; }
+.scorebasis { margin-top: 2px; color: var(--muted); font-size: var(--fs-xs); line-height: 1.5; }
+.scorecards { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; }
+.scorecard { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 10px 12px; }
+.scorecardhd { display: flex; justify-content: space-between; gap: 8px; align-items: baseline; font-size: var(--fs-xs); color: var(--text-soft); }
+.scorecardhd b { font-family: var(--font-mono); }
+.scorepnl { margin: 5px 0 4px; font-family: var(--font-mono); font-size: 21px; font-weight: 800; line-height: 1.15; }
+.scorerow { display: flex; justify-content: space-between; gap: 8px; margin-top: 2px; color: var(--muted); font-size: var(--fs-xs); }
+.scorerow b { color: var(--text-soft); font-family: var(--font-mono); font-weight: 700; }
+.scoretbl th:first-child, .scoretbl td:first-child { width: 22%; }
+.scoretbl td.pos, .scoretbl td.neg, .scoretbl td.muted { font-family: var(--font-mono); }
+.scoretrack .pos { color: #86efac; }
+.scoretrack .neg { color: #fca5a5; }
+.scoretrack .muted { color: var(--muted); }
+@media (max-width: 900px) { .scorecards { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 640px) { .scorecards { grid-template-columns: 1fr; } .scorehead { display: block; } .scorepnl { font-size: 20px; } }
 
 /* ---- per-pick market-trust chip ---- */
 .trustchip { display: inline-block; margin-left: 8px; padding: 1px 7px; border-radius: 999px; font-size: 10px; vertical-align: middle; }

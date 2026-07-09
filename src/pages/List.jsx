@@ -12,6 +12,84 @@ function betSelLabel(b) {
       : `让球 ${tn(b.selection === 'home' ? b.home : b.away)} ${b.line}`
 }
 
+const SCORE_PORTFOLIOS = [
+  ['comprehensive', '综合对冲'],
+  ['h2h', '胜平负对冲'],
+  ['handicap_1x2', '让球胜平负'],
+  ['correct_score', '比分对冲']
+]
+
+function signedMoney(v) {
+  if (v == null || Number.isNaN(Number(v))) return '—'
+  const n = Number(v)
+  return `${n >= 0 ? '+' : ''}¥${n.toFixed(0)}`
+}
+
+function money(v) {
+  if (v == null || Number.isNaN(Number(v))) return '—'
+  return `¥${Number(v).toFixed(0)}`
+}
+
+function roi(v) {
+  if (v == null || Number.isNaN(Number(v))) return '未定价'
+  const n = Number(v)
+  return `${n >= 0 ? '+' : ''}${(n * 100).toFixed(1)}%`
+}
+
+function ScorePlanReturns({ r, compact = false }) {
+  const summary = r?.portfolio_summary || {}
+  const rows = SCORE_PORTFOLIOS.map(([key, label]) => [key, label, summary[key]]).filter(([, , s]) => s)
+  if (!rows.length) return null
+  const stake = r.stake_per_match_cny ?? 100
+  const basis = r.basis || `每个组合独立按每场${stake}元虚拟投入结算。`
+  return (
+    <div className={`scoretrack ${compact ? 'compact' : 'detailed'}`}>
+      <div className="scorehead">
+        <div>
+          <div className="trksub">每场 {stake} 元组合收益统计</div>
+          <div className="scorebasis">{basis}</div>
+        </div>
+      </div>
+      <div className="scorecards">
+        {rows.map(([key, label, s]) => {
+          const pnl = Number(s.pnl_cny || 0)
+          return (
+            <div className="scorecard" key={key}>
+              <div className="scorecardhd"><span>{label}</span><b className={s.roi == null ? 'muted' : pnl >= 0 ? 'pos' : 'neg'}>{roi(s.roi)}</b></div>
+              <div className={`scorepnl ${pnl >= 0 ? 'pos' : 'neg'}`}>{signedMoney(s.pnl_cny)}</div>
+              <div className="scorerow"><span>样本</span><b>{s.match_count} 场</b></div>
+              <div className="scorerow"><span>本金</span><b>{money(s.stake_cny)}</b></div>
+              <div className="scorerow"><span>已定价</span><b>{money(s.priced_stake_cny)}</b></div>
+              {s.unpriced_stake_cny > 0 && <div className="scorerow muted"><span>未定价</span><b>{money(s.unpriced_stake_cny)}</b></div>}
+            </div>
+          )
+        })}
+      </div>
+      {!compact && (
+        <div className="scoretable">
+          <table className="st scoretbl"><thead><tr><th>组合</th><th>场次</th><th>本金</th><th>已定价</th><th>回收</th><th>盈亏</th><th>ROI</th><th>未定价</th></tr></thead>
+            <tbody>{rows.map(([key, label, s]) => {
+              const pnl = Number(s.pnl_cny || 0)
+              return (
+                <tr key={key}>
+                  <td data-label="组合">{label}</td>
+                  <td data-label="场次">{s.match_count}</td>
+                  <td data-label="本金">{money(s.stake_cny)}</td>
+                  <td data-label="已定价">{money(s.priced_stake_cny)}</td>
+                  <td data-label="回收">{money(s.return_cny)}</td>
+                  <td data-label="盈亏" className={pnl >= 0 ? 'pos' : 'neg'}>{signedMoney(s.pnl_cny)}</td>
+                  <td data-label="ROI" className={s.roi == null ? 'muted' : pnl >= 0 ? 'pos' : 'neg'}>{roi(s.roi)}</td>
+                  <td data-label="未定价">{s.missing_odds_count ? `${money(s.unpriced_stake_cny)} / ${s.missing_odds_count}项` : '—'}</td>
+                </tr>
+              )
+            })}</tbody></table>
+          <div className="dim small">比分盘或让球平没有真实赔率时计入未定价，不纳入 ROI；已完赛场次按赛前快照补充，避免赛果反推。</div>
+        </div>
+      )}
+    </div>
+  )
+}
+
 // Virtual track record of the would-bet picks (flat-stake), overall + group vs knockout split.
 function BetsTrack({ t }) {
   if (!t || !t.overall) return null
@@ -81,7 +159,7 @@ function BetRow({ b }) {
   )
 }
 
-function Bets({ bets, meta, track }) {
+function Bets({ bets, meta, track, scoreReturns }) {
   if (!meta) return <div className="note">投注建议数据未生成。</div>
   const picks = bets || []
   return (
@@ -95,6 +173,7 @@ function Bets({ bets, meta, track }) {
         ? <div className="dim" style={{ padding: '12px 0' }}>当前无 +EV 价值票——等开盘赔率到位、或模型与市场出现足够分歧时才会出现（模型很挑，多数场次与市场一致）。</div>
         : <div className="betlist">{picks.map((b, i) => <BetRow b={b} key={i} />)}</div>}
       <BetsTrack t={track} />
+      <ScorePlanReturns r={scoreReturns} />
     </div>
   )
 }
@@ -293,8 +372,9 @@ export default function List() {
       <div className="note">模型预测仅供分析参考；"价值"多为模型与市场背离；影子模式，非下注建议。时间为北京时间。</div>
       <div className="tabs">{TABS.map(([k, lbl]) => <button key={k} className={tab === k ? 'on' : ''} onClick={() => setTab(k)}>{lbl}</button>)}</div>
 
+      {tab === 'overview' && <ScorePlanReturns r={data.scorePlanReturns} compact />}
       {tab === 'overview' && <Overview ov={data.overview} />}
-      {tab === 'bets' && <Bets bets={data.bets} meta={data.betsMeta} track={data.betsTrack} />}
+      {tab === 'bets' && <Bets bets={data.bets} meta={data.betsMeta} track={data.betsTrack} scoreReturns={data.scorePlanReturns} />}
       {tab === 'standings' && (
         <div className="groups">
           {Object.entries(data.standings).map(([gn, teams]) => (

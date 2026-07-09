@@ -43,10 +43,62 @@ const SEC_SRC = {
   '进攻防守对位': 'mix', '打法与球队结构': 'mix', '情境与可用性': 'wc',
 }
 
+const SCORE_PLAN_PORTFOLIOS = [
+  ['comprehensive', '综合对冲'],
+  ['h2h', '胜平负对冲'],
+  ['handicap_1x2', '让球胜平负'],
+  ['correct_score', '比分对冲'],
+]
+
+const SCORE_PLAN_ROLES = {
+  main_score: '主比分',
+  same_script_score_hedge: '同剧本比分',
+  draw_score_hedge: '平局比分保护',
+  goal_volume_score_hedge: '进球数比分保护',
+  opposite_result_score_hedge: '反向结果比分',
+  extra_score_cover: '比分补位',
+  score_cover: '比分保护',
+  result_hedge: '赛果保护',
+  total_goals_hedge: '总进球保护',
+  spread_hedge: '让球保护',
+  handicap_hedge: '让球保护',
+  main_result: '主路径',
+  draw_result_hedge: '平局保护',
+  opposite_result_hedge: '反向保护',
+  main_handicap_result: '让球主路径',
+  handicap_result_hedge: '让球保护',
+}
+
 const statFrom = (text, key) => text.match(new RegExp(`${key}([+-]?\\d+(?:\\.\\d+)?)`))?.[1] ?? '—'
 const goalsFrom = text => text.match(/(\d+)球/)?.[1] ?? '0'
 const ratingFrom = text => text.match(/评分([+-]?\d+(?:\.\d+)?)/)?.[1] ?? '—'
 const teamClass = i => i === 0 ? 'home' : i === 1 ? 'away' : ''
+const lineLabel = v => v == null ? '' : Number(v) > 0 ? `+${v}` : String(v)
+const oddsLabel = a => a.decimal_odds != null
+  ? `@${Number(a.decimal_odds).toFixed(2)}`
+  : a.fair_decimal_odds != null ? `公平 ${Number(a.fair_decimal_odds).toFixed(2)}` : '未定价'
+const planProbLabel = a => [
+  a.model_probability != null ? `模型 ${pct(a.model_probability)}` : null,
+  a.market_probability != null ? `市场 ${pct(a.market_probability)}` : null,
+].filter(Boolean).join(' / ') || '—'
+
+function scorePlanSelection(a, m) {
+  if (a.market === 'correct_score') return a.score || a.selection
+  if (a.market === 'h2h') return a.selection === 'home' ? `${tn(m.home)} 胜` : a.selection === 'away' ? `${tn(m.away)} 胜` : '平局'
+  if (a.market === 'handicap_1x2') return `${tn(m.home)} ${lineLabel(a.line)} ${a.selection === 'home' ? '让胜' : a.selection === 'away' ? '让负' : '让平'}`
+  if (a.market === 'totals') return `${a.selection === 'over' ? '大' : '小'} ${a.line}`
+  if (a.market === 'spreads') return `让球 ${tn(a.selection === 'home' ? m.home : m.away)} ${lineLabel(a.line)}`
+  return a.selection || '—'
+}
+
+function scorePlanNote(a) {
+  if (a.market === 'correct_score') return '比分簇按赛果路径、总进球和盘口调权选取。'
+  if (a.market === 'h2h') return '胜平负内部对冲，模型概率与无水盘口共同定权。'
+  if (a.market === 'handicap_1x2') return '按主队让球后的胜平负脚本保护。'
+  if (a.market === 'totals') return '保护比分簇对应的总进球方向。'
+  if (a.market === 'spreads') return '保护主路径附近的让球结果。'
+  return '组合内对冲项。'
+}
 
 function ReportTable({ columns, rows, compact = false }) {
   if (!rows?.length) return null
@@ -603,6 +655,52 @@ function MatchShots({ sb, home, away }) {
   )
 }
 
+function ScoreBettingPlan({ m }) {
+  const plan = m.scoreBettingPlan
+  if (!plan) return null
+  const portfolios = SCORE_PLAN_PORTFOLIOS
+    .map(([key, label]) => [key, label, plan.portfolios?.[key]])
+    .filter(([, , p]) => p?.allocations?.length)
+  return (
+    <section className="card scorebet">
+      <h3><span>比分投注与对冲建议 <SrcTag k="market" /></span></h3>
+      {plan.status !== 'ok' || portfolios.length === 0 ? (
+        <div className="note small">{plan.reason || '盘口或预测输入不足，暂未生成逐场对冲方案。'}</div>
+      ) : (
+        <>
+          <div className="scorebetlead">
+            每套组合单独按 100 元分配，组合内合计 {plan.total_allocation_pct || 100}%。比分不是简单取概率前几名，而是按主路径、同剧本、平局、进球数和反向结果保护来选。
+          </div>
+          {portfolios.map(([key, label, portfolio]) => (
+            <div className="scoreportfolio" key={key}>
+              <div className="scoreporthead">
+                <b>{label}</b>
+                <span>合计 {portfolio.total_allocation_pct}%</span>
+              </div>
+              <div className="mtbl-wrap">
+                <table className="mtbl scoreplantbl"><thead><tr><th>金额</th><th>类型</th><th>选择</th><th>赔率</th><th>概率</th><th>说明</th></tr></thead>
+                  <tbody>{portfolio.allocations.map((a, i) => (
+                    <tr key={`${key}-${i}`}>
+                      <td className="stake" data-label="金额">¥{a.allocation_pct}</td>
+                      <td data-label="类型">{SCORE_PLAN_ROLES[a.role] || a.role || '对冲'}</td>
+                      <td className="sel" data-label="选择">{scorePlanSelection(a, m)}</td>
+                      <td data-label="赔率">{oddsLabel(a)}</td>
+                      <td data-label="概率">{planProbLabel(a)}</td>
+                      <td className="plannote" data-label="说明">{scorePlanNote(a)}</td>
+                    </tr>
+                  ))}</tbody></table>
+              </div>
+            </div>
+          ))}
+          <div className="dim small">
+            口径：已完赛场次只使用开赛前预测和开赛前盘口补充；正确比分若没有真实盘口赔率，仅展示模型公平赔率，不计入收益 ROI。
+          </div>
+        </>
+      )}
+    </section>
+  )
+}
+
 export default function Detail() {
   const { id } = useParams()
   const data = useData()
@@ -726,6 +824,8 @@ export default function Detail() {
           {hist.length > 1 && <div className="dim small">共 {hist.length} 个预测快照，默认显示最新</div>}
         </section>
       )}
+
+      <ScoreBettingPlan m={m} />
 
       <MarketCompare m={m} />
 
