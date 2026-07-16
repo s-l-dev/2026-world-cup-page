@@ -2568,6 +2568,119 @@ header h1 {
   font-size: var(--fs-xs);
   font-weight: 800;
 }
+.scoreprotect {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 10px;
+  align-items: baseline;
+  margin: 0 0 var(--space-2);
+  padding: 7px 9px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  color: var(--muted);
+  font-size: var(--fs-xs);
+  line-height: 1.5;
+}
+.scoreprotect b {
+  font-family: var(--font-mono);
+  font-weight: 900;
+}
+.scoreprotect.ok {
+  border-color: rgb(0 196 106 / .35);
+  background: var(--win-soft);
+}
+.scoreprotect.ok b {
+  color: var(--win-text);
+}
+.scoreprotect.risk {
+  border-color: rgb(255 98 112 / .28);
+  background: rgb(255 98 112 / .08);
+}
+.scoreprotect.risk b {
+  color: var(--danger-text);
+}
+.matchstate {
+  margin-top: var(--space-3);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--border);
+}
+.matchstate-head,
+.matchstate-head > div,
+.statefactors,
+.process-alerts,
+.process-row {
+  display: flex;
+  gap: 8px;
+}
+.matchstate-head {
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+.matchstate-head > div {
+  flex-wrap: wrap;
+  align-items: baseline;
+}
+.matchstate-head span,
+.matchstate-head small {
+  color: var(--muted);
+  font-size: var(--fs-xs);
+}
+.statefactors {
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+.statefactors span {
+  padding: 3px 7px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--text-soft);
+  font: 700 var(--fs-xs) var(--font-mono);
+}
+.statetbl {
+  min-width: 780px;
+}
+.process-alerts {
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+.process-alerts span {
+  padding: 5px 8px;
+  border: 1px solid rgb(255 98 112 / .28);
+  border-radius: var(--radius-sm);
+  background: rgb(255 98 112 / .08);
+  color: var(--danger-text);
+  font-size: var(--fs-xs);
+  font-weight: 800;
+}
+.process-list {
+  display: grid;
+  gap: 5px;
+}
+.process-row {
+  align-items: baseline;
+  padding: 6px 8px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-2);
+  font-size: var(--fs-xs);
+}
+.process-row b {
+  flex: 0 0 82px;
+}
+.process-row span {
+  flex: 1;
+  color: var(--text-soft);
+}
+.process-row em {
+  color: var(--muted);
+  font-style: normal;
+  white-space: nowrap;
+}
+.process-row.risk {
+  box-shadow: inset 3px 0 var(--danger-text);
+}
 .scoreplantbl {
   min-width: 760px;
 }

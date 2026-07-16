@@ -74,15 +74,18 @@ const goalsFrom = text => text.match(/(\d+)球/)?.[1] ?? '0'
 const ratingFrom = text => text.match(/评分([+-]?\d+(?:\.\d+)?)/)?.[1] ?? '—'
 const teamClass = i => i === 0 ? 'home' : i === 1 ? 'away' : ''
 const lineLabel = v => v == null ? '' : Number(v) > 0 ? `+${v}` : String(v)
-const oddsLabel = a => a.decimal_odds != null
-  ? `@${Number(a.decimal_odds).toFixed(2)}`
-  : a.fair_decimal_odds != null ? `公平 ${Number(a.fair_decimal_odds).toFixed(2)}` : '未定价'
+const oddsLabel = a => {
+  if (a.market === 'reserve') return '现金'
+  if (a.decimal_odds != null) return `@${Number(a.decimal_odds).toFixed(2)}`
+  return a.fair_decimal_odds != null ? `公平 ${Number(a.fair_decimal_odds).toFixed(2)}` : '未定价'
+}
 const planProbLabel = a => [
   a.model_probability != null ? `模型 ${pct(a.model_probability)}` : null,
   a.market_probability != null ? `市场 ${pct(a.market_probability)}` : null,
 ].filter(Boolean).join(' / ') || '—'
 
 function scorePlanSelection(a, m) {
+  if (a.market === 'reserve') return '现金保留'
   if (a.market === 'correct_score') return a.score || a.selection
   if (a.market === 'h2h') return a.selection === 'home' ? `${tn(m.home)} 胜` : a.selection === 'away' ? `${tn(m.away)} 胜` : '平局'
   if (a.market === 'handicap_1x2') return `${tn(m.home)} ${lineLabel(a.line)} ${a.selection === 'home' ? '让胜' : a.selection === 'away' ? '让负' : '让平'}`
@@ -92,12 +95,97 @@ function scorePlanSelection(a, m) {
 }
 
 function scorePlanNote(a) {
+  if (a.market === 'reserve') return '保本盈余不下注，留作现金保护本金。'
   if (a.market === 'correct_score') return '比分簇按赛果路径、总进球和盘口调权选取。'
   if (a.market === 'h2h') return '胜平负内部对冲，模型概率与无水盘口共同定权。'
   if (a.market === 'handicap_1x2') return '按主队让球后的胜平负脚本保护。'
   if (a.market === 'totals') return '保护比分簇对应的总进球方向。'
   if (a.market === 'spreads') return '保护主路径附近的让球结果。'
   return '组合内对冲项。'
+}
+
+function protectionLabel(profile) {
+  if (!profile) return '保护未知'
+  if (profile.principal_protected) return '可保本'
+  const minReturn = profile.min_return_pct ?? profile.min_selected_return_pct
+  return minReturn != null ? `最差回收 ${Number(minReturn).toFixed(1)}%` : '尽量保护本金'
+}
+
+function protectionDetail(profile) {
+  if (!profile) return ''
+  const bits = []
+  if (profile.min_pnl_pct != null) bits.push(`最差盈亏 ${Number(profile.min_pnl_pct).toFixed(1)}%`)
+  if (profile.selected_score_probability != null) bits.push(`所选比分覆盖 ${pct(profile.selected_score_probability)}`)
+  if (profile.unpriced_allocation_pct > 0) bits.push(`未定价 ${profile.unpriced_allocation_pct}%`)
+  if (profile.cash_reserve_pct > 0) bits.push(`现金 ${profile.cash_reserve_pct}%`)
+  if (profile.note) bits.push(profile.note)
+  return bits.join(' · ')
+}
+
+const stateRiskLabel = {
+  leader_defensive_shift_transition_risk: '领先方收缩后，禁区前沿与二点球压力上升',
+  trailer_attacking_shift_comeback_pressure: '落后方增加攻击手，追平/反超压力上升',
+}
+
+function MatchStateScenarios({ block, m }) {
+  if (!block?.scenarios?.length) return null
+  const multipliers = block.calibration?.multipliers || {}
+  return (
+    <div className="matchstate">
+      <div className="matchstate-head">
+        <div>
+          <b>90 分钟赛中状态推演</b>
+          <span>条件概率，不改写赛前胜平负</span>
+        </div>
+        <small>
+          样本 {block.calibration?.matches ?? '—'} 场 / {block.calibration?.goals ?? '—'} 球
+        </small>
+      </div>
+      <div className="statefactors">
+        <span>平局态 ×{Number(multipliers.tied ?? 1).toFixed(2)}</span>
+        <span>领先态 ×{Number(multipliers.leading ?? 1).toFixed(2)}</span>
+        <span>落后态 ×{Number(multipliers.trailing ?? 1).toFixed(2)}</span>
+      </div>
+      <div className="mtbl-wrap">
+        <table className="mtbl statetbl">
+          <thead><tr><th>时点</th><th>当时比分</th><th>{tn(m.home)}胜 / 平 / {tn(m.away)}胜</th><th>剩余 xG</th><th>最可能终场</th></tr></thead>
+          <tbody>{block.scenarios.map(s => (
+            <tr key={s.id}>
+              <td>{s.minute}'</td>
+              <td className="sel">{s.score}</td>
+              <td>{pct(s.x12?.home)} / {pct(s.x12?.draw)} / {pct(s.x12?.away)}</td>
+              <td>{Number(s.remainingXg?.total ?? 0).toFixed(2)}</td>
+              <td>{(s.topScores || []).slice(0, 3).map(x => `${x.score} ${pct(x.probability)}`).join('，')}</td>
+            </tr>
+          ))}</tbody>
+        </table>
+      </div>
+      <div className="dim small">状态倍率只使用该场开赛前已经完赛的世界杯事件与对应赛前 xG 拟合；换人信号另作过程诊断，避免重复调权。</div>
+    </div>
+  )
+}
+
+function ProcessSignals({ block }) {
+  if (!block?.substitutions?.length) return null
+  return (
+    <Collapse title="🧭 阵型变化与比赛状态" cls="process-signals" defaultOpen>
+      {block.riskFlags?.length > 0 && (
+        <div className="process-alerts">
+          {block.riskFlags.map(flag => <span key={flag}>{stateRiskLabel[flag] || flag}</span>)}
+        </div>
+      )}
+      <div className="process-list">
+        {block.substitutions.map((event, index) => (
+          <div className={`process-row ${event.risk_flag ? 'risk' : ''}`} key={`${event.minute}-${event.team_id}-${index}`}>
+            <b>{event.minute}' {tn(event.team_id)}</b>
+            <span>{event.player_in}（{event.in_position}）换上，{event.player_out}（{event.out_position}）换下</span>
+            <em>{event.direction === 'attacking' ? '进攻化' : '防守化'} · {event.team_state === 'leading' ? '领先' : event.team_state === 'trailing' ? '落后' : '平局'}</em>
+          </div>
+        ))}
+      </div>
+      <div className="dim small">位置变化来自实际换人和球员位置；风险提示用于解释比赛进程，不作为赛前概率的事后改写。</div>
+    </Collapse>
+  )
 }
 
 function ReportTable({ columns, rows, compact = false }) {
@@ -677,6 +765,10 @@ function ScoreBettingPlan({ m }) {
                 <b>{label}</b>
                 <span>合计 {portfolio.total_allocation_pct}%</span>
               </div>
+              <div className={`scoreprotect ${portfolio.protection_profile?.principal_protected ? 'ok' : 'risk'}`}>
+                <b>{protectionLabel(portfolio.protection_profile)}</b>
+                {protectionDetail(portfolio.protection_profile) && <span>{protectionDetail(portfolio.protection_profile)}</span>}
+              </div>
               <div className="mtbl-wrap">
                 <table className="mtbl scoreplantbl"><thead><tr><th>金额</th><th>类型</th><th>选择</th><th>赔率</th><th>概率</th><th>说明</th></tr></thead>
                   <tbody>{portfolio.allocations.map((a, i) => (
@@ -783,6 +875,8 @@ export default function Detail() {
         </Collapse>
       )}
 
+      <ProcessSignals block={m.processSignals} />
+
       {p && (
         <section className="card prediction">
           <h3><span>模型预测 <SrcTag k="model" /></span>
@@ -820,6 +914,7 @@ export default function Detail() {
               <div className="dim small">模型对各比分的发生概率（前 12 高）。我们的盘口源不含正确比分市场，故只给概率、不给赔率。</div>
             </div>
           )}
+          <MatchStateScenarios block={p.matchState} m={m} />
           {vi > 0 && <div className="dim small">↑ 历史快照（生成于 {bj(snap.at)}，截止 {bj(snap.cutoff)}，北京时间）；比分概率/大小球/半场/双方进球为最新值</div>}
           {hist.length > 1 && <div className="dim small">共 {hist.length} 个预测快照，默认显示最新</div>}
         </section>
